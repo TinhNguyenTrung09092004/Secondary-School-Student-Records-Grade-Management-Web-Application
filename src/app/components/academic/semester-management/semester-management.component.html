@@ -1,0 +1,83 @@
+<h2>Quản Lý Học Kỳ</h2>
+<button (click)="openCreateModal()">Thêm Học Kỳ Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Mã Học Kỳ</th>
+      <th>Tên Học Kỳ</th>
+      <th>Hệ Số</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let semester of semesterList">
+      <td>{{ semester.semesterId }}</td>
+      <td>{{ semester.semesterName }}</td>
+      <td>{{ semester.coefficient }}</td>
+      <td>
+        <button (click)="openEditModal(semester)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="deleteSemester(semester)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeCreateModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Thêm Học Kỳ Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Mã Học Kỳ: *</label><br>
+      <input type="text" [(ngModel)]="newSemester.semesterId" maxlength="3" required placeholder="VD: HK1">
+    </p>
+
+    <p>
+      <label>Tên Học Kỳ: *</label><br>
+      <input type="text" [(ngModel)]="newSemester.semesterName" maxlength="30" required placeholder="VD: Học kỳ 1">
+    </p>
+
+    <p>
+      <label>Hệ Số: *</label><br>
+      <input type="number" [(ngModel)]="newSemester.coefficient" min="1" required>
+    </p>
+
+    <button (click)="closeCreateModal()">Hủy</button>
+    <button (click)="createSemester()">Tạo</button>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeEditModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Học Kỳ</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Mã Học Kỳ: *</label><br>
+      <input type="text" [(ngModel)]="editSemester.semesterId" maxlength="3" required>
+      <br><small style="color: #666;">Lưu ý: Chỉ được thay đổi nếu học kỳ chưa được sử dụng</small>
+    </p>
+
+    <p>
+      <label>Tên Học Kỳ: *</label><br>
+      <input type="text" [(ngModel)]="editSemester.semesterName" maxlength="30" required>
+    </p>
+
+    <p>
+      <label>Hệ Số: *</label><br>
+      <input type="number" [(ngModel)]="editSemester.coefficient" min="1" required>
+    </p>
+
+    <button (click)="closeEditModal()">Hủy</button>
+    <button (click)="updateSemester()">Cập nhật</button>
+  </div>
+</div>

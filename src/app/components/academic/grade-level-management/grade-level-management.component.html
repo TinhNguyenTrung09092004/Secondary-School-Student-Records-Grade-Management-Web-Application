@@ -1,0 +1,74 @@
+<h2>Quản Lý Khối</h2>
+<button (click)="openCreateModal()">Thêm Khối Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1" style="width: 100%; margin-top: 20px;">
+  <thead>
+    <tr>
+      <th>Mã Khối</th>
+      <th>Tên Khối</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let gradeLevel of gradeLevelList">
+      <td>{{ gradeLevel.gradeLevelId }}</td>
+      <td>{{ gradeLevel.gradeLevelName }}</td>
+      <td>
+        <button (click)="openEditModal(gradeLevel)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="deleteGradeLevel(gradeLevel)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeCreateModal()">
+  <div style="position: relative; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Thêm Khối Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div>
+      <label>Mã Khối: *</label><br>
+      <input type="text" [(ngModel)]="newGradeLevel.gradeLevelId" maxlength="6" required style="width: 95%;" placeholder="VD: K10">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Tên Khối: *</label><br>
+      <input type="text" [(ngModel)]="newGradeLevel.gradeLevelName" maxlength="30" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeCreateModal()">Hủy</button>
+      <button (click)="createGradeLevel()">Tạo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeEditModal()">
+  <div style="position: relative; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Khối</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div>
+      <label>Mã Khối: *</label><br>
+      <input type="text" [(ngModel)]="editGradeLevel.gradeLevelId" maxlength="6" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Tên Khối: *</label><br>
+      <input type="text" [(ngModel)]="editGradeLevel.gradeLevelName" maxlength="30" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeEditModal()">Hủy</button>
+      <button (click)="updateGradeLevel()">Cập nhật</button>
+    </div>
+  </div>
+</div>

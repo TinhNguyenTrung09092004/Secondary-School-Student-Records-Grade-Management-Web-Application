@@ -1,0 +1,38 @@
+/* Year-end conduct column styling */
+.year-end-conduct {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+/* Conduct badge styling */
+.conduct-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Color coding for different conduct levels */
+.conduct-tốt {
+  background-color: #28a745;
+  color: white;
+}
+
+.conduct-khá {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.conduct-đạt {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.conduct-chưa-đạt {
+  background-color: #dc3545;
+  color: white;
+}

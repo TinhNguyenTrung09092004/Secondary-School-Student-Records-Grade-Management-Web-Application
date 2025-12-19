@@ -1,0 +1,25 @@
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 50px;">
+  <h1>Đăng nhập bằng Khuôn mặt</h1>
+
+  <div style="position: relative; margin: 20px 0;">
+    <video #video autoplay playsinline style="width: 640px; max-width: 90vw; border: 2px solid #ccc; border-radius: 8px;"></video>
+    <canvas #canvas style="position: absolute; top: 0; left: 0; pointer-events: none;"></canvas>
+  </div>
+
+  <p *ngIf="faceDetected" style="color: green; font-weight: bold;">✓ Khuôn mặt đã phát hiện</p>
+  <p *ngIf="!faceDetected" style="color: orange;">⚠ Không phát hiện khuôn mặt</p>
+
+  <p *ngIf="message" style="color: blue;">{{ message }}</p>
+  <p *ngIf="error" style="color: red;">{{ error }}</p>
+
+  <p>
+    <button (click)="loginWithFace()" [disabled]="isAuthenticating || !faceDetected">
+      {{ isAuthenticating ? 'Đang xác thực...' : 'Đăng nhập' }}
+    </button>
+    <button (click)="cancel()" [disabled]="isAuthenticating" style="margin-left: 10px;">Hủy</button>
+  </p>
+
+  <p style="margin-top: 20px; color: #666; font-size: 14px;">
+    Hướng dẫn: Đảm bảo khuôn mặt được chiếu sáng tốt và nhìn thẳng vào camera
+  </p>
+</div>

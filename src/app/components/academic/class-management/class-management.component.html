@@ -1,0 +1,172 @@
+<h2>{{ isPrincipal ? 'Phân Công Giáo Viên Chủ Nhiệm' : 'Quản Lý Lớp Học' }}</h2>
+<button *ngIf="!isPrincipal" (click)="openCreateModal()">Thêm Lớp Học Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Mã Lớp</th>
+      <th>Tên Lớp</th>
+      <th>Khối</th>
+      <th>Năm Học</th>
+      <th>Sĩ Số Tối Đa</th>
+      <th>Sĩ Số Hiện Tại</th>
+      <th>Giáo Viên Chủ Nhiệm</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let class of classList">
+      <td>{{ class.classId }}</td>
+      <td>{{ class.className }}</td>
+      <td>{{ class.gradeLevelName }}</td>
+      <td>{{ class.schoolYearName }}</td>
+      <td>{{ class.classSize }}</td>
+      <td>{{ class.currentStudentCount }}</td>
+      <td>{{ class.teacherName || 'Chưa phân công' }}</td>
+      <td>
+        <button *ngIf="!isPrincipal" (click)="openEditModal(class)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="openAssignTeacherModal(class)" title="Phân công GVCN">GVCN</button>
+        <button *ngIf="!isPrincipal" (click)="deleteClass(class)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeCreateModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black; min-width: 400px;" (click)="$event.stopPropagation()">
+    <h3>Thêm Lớp Học Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Mã Lớp:</label><br>
+      <input type="text" [(ngModel)]="newClass.classId" maxlength="10" required>
+    </p>
+
+    <p>
+      <label>Tên Lớp:</label><br>
+      <input type="text" [(ngModel)]="newClass.className" maxlength="30" required>
+    </p>
+
+    <p>
+      <label>Khối:</label><br>
+      <select [(ngModel)]="newClass.gradeLevelId" required>
+        <option value="">-- Chọn Khối --</option>
+        <option *ngFor="let gradeLevel of gradeLevelList" [value]="gradeLevel.gradeLevelId">
+          {{ gradeLevel.gradeLevelName }}
+        </option>
+      </select>
+    </p>
+
+    <p>
+      <label>Năm Học:</label><br>
+      <select [(ngModel)]="newClass.schoolYearId" required>
+        <option value="">-- Chọn Năm Học --</option>
+        <option *ngFor="let schoolYear of schoolYearList" [value]="schoolYear.schoolYearId">
+          {{ schoolYear.schoolYearName }}
+        </option>
+      </select>
+    </p>
+
+    <p>
+      <label>Sĩ Số Tối Đa:</label><br>
+      <input type="number" [(ngModel)]="newClass.classSize" min="1" max="100" required>
+    </p>
+
+    <p style="color: #666; font-size: 0.9em;">
+      <strong>Lưu ý:</strong> Sĩ số hiện tại sẽ được tự động tính dựa trên số học sinh được phân công vào lớp. Giáo viên chủ nhiệm sẽ được hiệu trưởng phân công sau.
+    </p>
+
+    <button (click)="closeCreateModal()">Hủy</button>
+    <button (click)="createClass()">Tạo</button>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeEditModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black; min-width: 400px;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Lớp Học</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Mã Lớp:</label><br>
+      <input type="text" [(ngModel)]="editClass.classId" maxlength="10" required>
+    </p>
+
+    <p>
+      <label>Tên Lớp:</label><br>
+      <input type="text" [(ngModel)]="editClass.className" maxlength="30" required>
+    </p>
+
+    <p>
+      <label>Khối:</label><br>
+      <select [(ngModel)]="editClass.gradeLevelId" required>
+        <option value="">-- Chọn Khối --</option>
+        <option *ngFor="let gradeLevel of gradeLevelList" [value]="gradeLevel.gradeLevelId">
+          {{ gradeLevel.gradeLevelName }}
+        </option>
+      </select>
+    </p>
+
+    <p>
+      <label>Năm Học:</label><br>
+      <select [(ngModel)]="editClass.schoolYearId" required>
+        <option value="">-- Chọn Năm Học --</option>
+        <option *ngFor="let schoolYear of schoolYearList" [value]="schoolYear.schoolYearId">
+          {{ schoolYear.schoolYearName }}
+        </option>
+      </select>
+    </p>
+
+    <p>
+      <label>Sĩ Số Tối Đa:</label><br>
+      <input type="number" [(ngModel)]="editClass.classSize" min="1" max="100" required>
+    </p>
+
+    <p style="color: #666; font-size: 0.9em;">
+      <strong>Lưu ý:</strong> Sĩ số hiện tại được tự động tính. Giáo viên chủ nhiệm chỉ có thể được thay đổi bởi hiệu trưởng.
+    </p>
+
+    <button (click)="closeEditModal()">Hủy</button>
+    <button (click)="updateClass()">Cập nhật</button>
+  </div>
+</div>
+
+<!-- Assign Homeroom Teacher Modal -->
+<div *ngIf="showAssignTeacherModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeAssignTeacherModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black; min-width: 500px;" (click)="$event.stopPropagation()">
+    <h3>Phân Công Giáo Viên Chủ Nhiệm</h3>
+    <button (click)="closeAssignTeacherModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p><strong>Lớp:</strong> {{ selectedClass?.className }} ({{ selectedClass?.gradeLevelName }} - {{ selectedClass?.schoolYearName }})</p>
+    <p style="color: #666; font-size: 0.9em;">
+      <strong>Lưu ý:</strong> Chỉ giáo viên nào giảng dạy ít nhất một môn trong lớp này mới có thể được phân công làm giáo viên chủ nhiệm.
+    </p>
+
+    <p *ngIf="eligibleTeacherList.length === 0" style="color: red;">
+      Không có giáo viên đủ điều kiện. Vui lòng phân công giáo viên giảng dạy môn học trong lớp trước.
+    </p>
+
+    <div *ngIf="eligibleTeacherList.length > 0">
+      <label>Chọn Giáo Viên Chủ Nhiệm:</label><br>
+      <select [(ngModel)]="selectedTeacherId" required style="width: 95%; padding: 8px; margin-top: 10px;">
+        <option value="">-- Chọn giáo viên --</option>
+        <option *ngFor="let teacher of eligibleTeacherList" [value]="teacher.teacherId">
+          {{ teacher.teacherId }} - {{ teacher.teacherName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeAssignTeacherModal()">Hủy</button>
+      <button (click)="assignHomeroomTeacher()" [disabled]="eligibleTeacherList.length === 0">Phân Công</button>
+    </div>
+  </div>
+</div>

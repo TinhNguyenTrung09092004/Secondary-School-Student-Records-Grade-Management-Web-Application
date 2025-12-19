@@ -1,0 +1,33 @@
+<div style="display: flex; min-height: 100vh;">
+  <nav style="width: 200px; background-color: #f0f0f0; padding: 20px; border-right: 1px solid #ccc;">
+    <h3>Quản Trị</h3>
+    <ul style="list-style: none; padding: 0;">
+      <li style="margin-bottom: 10px;">
+        <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" style="text-decoration: none; color: #333;">Dashboard</a>
+      </li>
+      <li style="margin-bottom: 10px;">
+        <a routerLink="/admin/users" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Người Dùng</a>
+      </li>
+      <li style="margin-bottom: 10px;">
+        <a routerLink="/admin/backup" routerLinkActive="active" style="text-decoration: none; color: #333;">Sao Lưu Dữ Liệu</a>
+      </li>
+      <li style="margin-bottom: 10px; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+        <a routerLink="/face-enrollment" style="text-decoration: none; color: #0066cc;">Đăng Ký Khuôn Mặt</a>
+      </li>
+      <li style="margin-bottom: 10px;">
+        <a href="#" (click)="logout($event)" style="text-decoration: none; color: #d00;">Đăng Xuất</a>
+      </li>
+    </ul>
+  </nav>
+  <main style="flex: 1; padding: 20px;">
+    <div *ngIf="showDashboard">
+      <h2>Dashboard Quản Trị</h2>
+      <p>Chào mừng Admin đến với hệ thống quản lý.</p>
+      <div style="margin-top: 20px;">
+        <h3>Thống kê hệ thống</h3>
+        <p>Nội dung thống kê dành cho Admin sẽ được hiển thị ở đây.</p>
+      </div>
+    </div>
+    <router-outlet></router-outlet>
+  </main>
+</div>

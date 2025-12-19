@@ -1,0 +1,154 @@
+<h2>Hồ Sơ Cá Nhân</h2>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<!-- No Profile Yet -->
+<div *ngIf="!hasProfile && !loading">
+  <p>Bạn chưa có hồ sơ. Vui lòng tạo hồ sơ để tiếp tục.</p>
+  <button (click)="openCreateModal()">Tạo Hồ Sơ</button>
+</div>
+
+<!-- Profile Display -->
+<div *ngIf="hasProfile && profile">
+  <table border="1" style="margin-top: 20px; width: 600px;">
+    <tr>
+      <th style="width: 200px; text-align: left; padding: 10px;">Mã Giáo Viên</th>
+      <td style="padding: 10px;">{{ profile.teacherId }}</td>
+    </tr>
+    <tr>
+      <th style="text-align: left; padding: 10px;">Họ Tên</th>
+      <td style="padding: 10px;">{{ profile.teacherName }}</td>
+    </tr>
+    <tr>
+      <th style="text-align: left; padding: 10px;">Địa Chỉ</th>
+      <td style="padding: 10px;">{{ profile.address }}</td>
+    </tr>
+    <tr>
+      <th style="text-align: left; padding: 10px;">Số Điện Thoại</th>
+      <td style="padding: 10px;">{{ profile.phoneNumber }}</td>
+    </tr>
+    <tr>
+      <th style="text-align: left; padding: 10px;">Môn Học</th>
+      <td style="padding: 10px;">{{ getSubjectName(profile.subjectId) }}</td>
+    </tr>
+    <tr>
+      <th style="text-align: left; padding: 10px;">Tổ Bộ Môn</th>
+      <td style="padding: 10px;">{{ getDepartmentName(profile.departmentId) }}</td>
+    </tr>
+  </table>
+
+  <div style="margin-top: 20px;">
+    <button (click)="openEditModal()">Chỉnh Sửa</button>
+    <button (click)="deleteProfile()" style="margin-left: 10px;">Xóa Hồ Sơ</button>
+  </div>
+</div>
+
+<!-- Create Profile Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeCreateModal()">
+  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 500px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
+    <h3>Tạo Hồ Sơ Giáo Viên</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div>
+      <label>Mã Giáo Viên: *</label><br>
+      <input type="text" [(ngModel)]="newProfile.teacherId" maxlength="6" required style="width: 95%;" placeholder="VD: GV001">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Họ Tên: *</label><br>
+      <input type="text" [(ngModel)]="newProfile.teacherName" maxlength="30" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Địa Chỉ: *</label><br>
+      <input type="text" [(ngModel)]="newProfile.address" maxlength="50" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Số Điện Thoại: *</label><br>
+      <input type="tel" [(ngModel)]="newProfile.phoneNumber" maxlength="15" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Môn Học: *</label><br>
+      <select [(ngModel)]="newProfile.subjectId" required style="width: 98%;">
+        <option value="">-- Chọn môn học --</option>
+        <option *ngFor="let subject of subjectList" [value]="subject.subjectId">
+          {{ subject.subjectName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Tổ Bộ Môn:</label><br>
+      <select [(ngModel)]="newProfile.departmentId" style="width: 98%;">
+        <option value="">-- Chọn tổ bộ môn (không bắt buộc) --</option>
+        <option *ngFor="let department of departmentList" [value]="department.departmentId">
+          {{ department.departmentName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeCreateModal()">Hủy</button>
+      <button (click)="createProfile()" style="margin-left: 10px;">Tạo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeEditModal()">
+  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 500px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Hồ Sơ</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div>
+      <label>Mã Giáo Viên:</label><br>
+      <input type="text" [value]="profile?.teacherId" disabled style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Họ Tên: *</label><br>
+      <input type="text" [(ngModel)]="editProfile.teacherName" maxlength="30" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Địa Chỉ: *</label><br>
+      <input type="text" [(ngModel)]="editProfile.address" maxlength="50" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Số Điện Thoại: *</label><br>
+      <input type="tel" [(ngModel)]="editProfile.phoneNumber" maxlength="15" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Môn Học: *</label><br>
+      <select [(ngModel)]="editProfile.subjectId" required style="width: 98%;">
+        <option value="">-- Chọn môn học --</option>
+        <option *ngFor="let subject of subjectList" [value]="subject.subjectId">
+          {{ subject.subjectName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Tổ Bộ Môn: *</label><br>
+      <select [(ngModel)]="editProfile.departmentId" style="width: 98%;">
+        <option value="">-- Chọn tổ bộ môn --</option>
+        <option *ngFor="let department of departmentList" [value]="department.departmentId">
+          {{ department.departmentName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeEditModal()">Hủy</button>
+      <button (click)="updateProfile()" style="margin-left: 10px;">Cập nhật</button>
+    </div>
+  </div>
+</div>

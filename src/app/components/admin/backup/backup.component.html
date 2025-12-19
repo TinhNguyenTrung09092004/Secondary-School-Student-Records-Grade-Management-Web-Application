@@ -1,0 +1,112 @@
+<h2>Database Backup Management</h2>
+
+<div *ngIf="errorMessage" style="color: red; padding: 10px; border: 1px solid red; margin-bottom: 10px;">
+  {{ errorMessage }}
+</div>
+
+<div *ngIf="successMessage" style="color: green; padding: 10px; border: 1px solid green; margin-bottom: 10px;">
+  {{ successMessage }}
+</div>
+
+<h3>Backup Schedule</h3>
+<div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc;">
+  <p>
+    <label>
+      <input type="checkbox" [(ngModel)]="schedule.isEnabled">
+      Enable Automatic Daily Backup
+    </label>
+  </p>
+  <p>
+    <label>Backup Time (HH:MM):</label>
+    <input type="time" [(ngModel)]="schedule.backupTime" [disabled]="!schedule.isEnabled">
+  </p>
+  <p *ngIf="schedule.lastBackupDate">
+    Last Backup: {{ schedule.lastBackupDate | date:'dd/MM/yyyy HH:mm' }}
+  </p>
+  <button (click)="updateSchedule()">Save Schedule</button>
+</div>
+
+<h3>Manual Backup</h3>
+<div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc;">
+  <p><strong>Select Tables to Backup:</strong></p>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
+    <label *ngFor="let table of tables">
+      <input type="checkbox" [checked]="selectedTables.includes(table)" (change)="toggleTable(table)">
+      {{ table }}
+    </label>
+  </div>
+  <br>
+  <button (click)="selectAll()">Select All</button>
+  <button (click)="deselectAll()">Deselect All</button>
+  <button (click)="createBackup()" [disabled]="selectedTables.length === 0 || loading">
+    {{ loading ? 'Creating Backup...' : 'Create Backup Now' }}
+  </button>
+</div>
+
+<h3>Backup Files</h3>
+<div style="margin-bottom: 20px;">
+  <button (click)="loadBackupFiles()">Refresh List</button>
+</div>
+
+<table border="1" cellpadding="5" cellspacing="0" style="width: 100%;">
+  <thead>
+    <tr>
+      <th>File Name</th>
+      <th>Date Created</th>
+      <th>Size</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let file of backupFiles">
+      <td>{{ file.fileName }}</td>
+      <td>{{ file.createdDate | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+      <td>{{ formatFileSize(file.fileSizeBytes) }}</td>
+      <td>
+        <button (click)="downloadBackup(file.fileName)">Download</button>
+        <button (click)="confirmRestore(file.fileName)" style="background-color: #f80; color: white; margin-left: 5px;">Restore</button>
+      </td>
+    </tr>
+    <tr *ngIf="backupFiles.length === 0">
+      <td colspan="4" style="text-align: center;">No backup files found</td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="showRestoreConfirm" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;" (click)="cancelRestore()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 2px solid red; max-width: 600px;" (click)="$event.stopPropagation()">
+    <h3 style="color: red;">⚠ CRITICAL WARNING: Data Restore</h3>
+
+    <div style="background-color: #ffe6e6; padding: 15px; border: 1px solid red; margin: 10px 0;">
+      <p style="margin: 0; font-weight: bold; color: red;">⛔ DANGER: This will PERMANENTLY OVERWRITE all current data!</p>
+    </div>
+
+    <p><strong>Restoring backup file:</strong></p>
+    <p style="font-style: italic; background: #f0f0f0; padding: 5px;">{{ restoreFileName }}</p>
+
+    <p><strong>⚠ This operation will:</strong></p>
+    <ul style="color: red;">
+      <li>DELETE all existing data in the restored tables</li>
+      <li>Replace it with data from this backup file</li>
+      <li>This action CANNOT be undone</li>
+    </ul>
+
+    <div style="background-color: #fff3cd; padding: 10px; border: 1px solid orange; margin: 10px 0;">
+      <label style="display: block; margin-bottom: 10px;">
+        <input type="checkbox" [(ngModel)]="createBackupBeforeRestore">
+        <strong>Create automatic backup before restore (RECOMMENDED)</strong>
+      </label>
+      <p style="margin: 5px 0; font-size: 0.9em;">This will create a safety backup of your current data before restoring.</p>
+    </div>
+
+    <p><strong>Type "CONFIRM" to proceed:</strong></p>
+    <input type="text" [(ngModel)]="confirmText" placeholder="Type CONFIRM here" style="width: 100%; padding: 5px;">
+
+    <div style="margin-top: 20px;">
+      <button (click)="cancelRestore()" style="margin-right: 10px;">Cancel</button>
+      <button (click)="restoreBackup()" [disabled]="confirmText !== 'CONFIRM'" style="background-color: red; color: white;">
+        {{ createBackupBeforeRestore ? 'Backup & Restore' : 'Restore Data (NO BACKUP)' }}
+      </button>
+    </div>
+  </div>
+</div>

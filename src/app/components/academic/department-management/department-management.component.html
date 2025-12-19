@@ -1,0 +1,98 @@
+<h2>Quản Lý Tổ Bộ Môn</h2>
+<button (click)="openCreateModal()">Thêm Tổ Bộ Môn Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1" style="width: 100%; margin-top: 20px;">
+  <thead>
+    <tr>
+      <th>Mã Tổ BM</th>
+      <th>Tên Tổ Bộ Môn</th>
+      <th>Trưởng Khoa</th>
+      <th>Số Giáo Viên</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let department of departmentList">
+      <td>{{ department.departmentId }}</td>
+      <td>{{ department.departmentName }}</td>
+      <td>{{ department.headTeacherName || '(Chưa có)' }}</td>
+      <td>{{ department.teacherCount }}</td>
+      <td>
+        <button (click)="openEditModal(department)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="deleteDepartment(department)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeCreateModal()">
+  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 500px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
+    <h3>Thêm Tổ Bộ Môn Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div>
+      <label>Mã Tổ Bộ Môn: *</label><br>
+      <input type="text" [(ngModel)]="newDepartment.departmentId" maxlength="6" required style="width: 95%;" placeholder="VD: DEPT01">
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Tên Tổ Bộ Môn: *</label><br>
+      <input type="text" [(ngModel)]="newDepartment.departmentName" maxlength="50" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Trưởng Khoa: (Tùy chọn)</label><br>
+      <select [(ngModel)]="newDepartment.headTeacherId" style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn giáo viên --</option>
+        <option *ngFor="let teacher of teacherList" [value]="teacher.teacherId">
+          {{ teacher.teacherId }} - {{ teacher.teacherName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeCreateModal()">Hủy</button>
+      <button (click)="createDepartment()">Tạo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeEditModal()">
+  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 500px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Tổ Bộ Môn</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div>
+      <label>Mã Tổ Bộ Môn:</label><br>
+      <input type="text" [value]="selectedDepartment?.departmentId" disabled style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Tên Tổ Bộ Môn: *</label><br>
+      <input type="text" [(ngModel)]="editDepartment.departmentName" maxlength="50" required style="width: 95%;">
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Trưởng Khoa: (Tùy chọn)</label><br>
+      <select [(ngModel)]="editDepartment.headTeacherId" style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn giáo viên --</option>
+        <option *ngFor="let teacher of teacherList" [value]="teacher.teacherId">
+          {{ teacher.teacherId }} - {{ teacher.teacherName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeEditModal()">Hủy</button>
+      <button (click)="updateDepartment()">Cập nhật</button>
+    </div>
+  </div>
+</div>

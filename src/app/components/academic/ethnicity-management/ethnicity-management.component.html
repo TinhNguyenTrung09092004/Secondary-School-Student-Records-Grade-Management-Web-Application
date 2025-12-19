@@ -1,0 +1,67 @@
+<h2>Quản Lý Dân Tộc</h2>
+<button (click)="openCreateModal()">Thêm Dân Tộc Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Mã Dân Tộc</th>
+      <th>Tên Dân Tộc</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let ethnicity of ethnicityList">
+      <td>{{ ethnicity.ethnicityId }}</td>
+      <td>{{ ethnicity.ethnicityName }}</td>
+      <td>
+        <button (click)="openEditModal(ethnicity)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="deleteEthnicity(ethnicity)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeCreateModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Thêm Dân Tộc Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p><strong>Lưu ý:</strong> Mã dân tộc sẽ được tự động tạo bởi hệ thống.</p>
+
+    <p>
+      <label>Tên Dân Tộc:</label><br>
+      <input type="text" [(ngModel)]="newEthnicity.ethnicityName" maxlength="30" required>
+    </p>
+
+    <button (click)="closeCreateModal()">Hủy</button>
+    <button (click)="createEthnicity()">Tạo</button>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeEditModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Dân Tộc</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Mã Dân Tộc:</label><br>
+      <input type="text" [value]="selectedEthnicity?.ethnicityId" disabled>
+    </p>
+
+    <p>
+      <label>Tên Dân Tộc:</label><br>
+      <input type="text" [(ngModel)]="editEthnicity.ethnicityName" maxlength="30" required>
+    </p>
+
+    <button (click)="closeEditModal()">Hủy</button>
+    <button (click)="updateEthnicity()">Cập nhật</button>
+  </div>
+</div>

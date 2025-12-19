@@ -1,0 +1,78 @@
+<div style="display: flex; min-height: 100vh;">
+  <nav style="width: 200px; background-color: #f0f0f0; padding: 20px; border-right: 1px solid #ccc;">
+    <h3></h3>
+    <ul style="list-style: none; padding: 0;">
+      <li style="margin-bottom: 10px;">
+        <a routerLink="/academic" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" style="text-decoration: none; color: #333;">Dashboard</a>
+      </li>
+      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
+        <a routerLink="/academic/students" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Học Sinh</a>
+      </li>
+      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
+        <a routerLink="/academic/classes" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Lớp Học</a>
+      </li>
+      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
+        <a routerLink="/academic/class-assignment" routerLinkActive="active" style="text-decoration: none; color: #333;">Phân Công Lớp</a>
+      </li>
+      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
+        <a routerLink="/academic/grade-levels" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Khối</a>
+      </li>
+      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
+        <a routerLink="/academic/school-years" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Năm Học</a>
+      </li>
+      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
+        <a routerLink="/academic/ethnicity" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Dân Tộc</a>
+      </li>
+      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
+        <a routerLink="/academic/religion" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Tôn Giáo</a>
+      </li>
+      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
+        <a routerLink="/academic/occupation" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Nghề Nghiệp</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/subjects" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Môn Học</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/departments" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Tổ Bộ Môn</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/semesters" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Học Kỳ</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/grade-types" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Loại Điểm</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/conduct" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Hạnh Kiểm</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/academic-performance" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Học Lực</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/result" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Kết Quả</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/principal-dashboard" routerLinkActive="active" style="text-decoration: none; color: #333; font-weight: bold;">📊 Bảng Điều Khiển</a>
+      </li>
+      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
+        <a routerLink="/academic/classes" routerLinkActive="active" style="text-decoration: none; color: #333;">Phân Công GVCN</a>
+      </li>
+      <li style="margin-bottom: 10px; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+        <a routerLink="/face-enrollment" style="text-decoration: none; color: #0066cc;">Đăng Ký Khuôn Mặt</a>
+      </li>
+      <li style="margin-bottom: 10px;">
+        <a href="#" (click)="logout($event)" style="text-decoration: none; color: #d00;">Đăng Xuất</a>
+      </li>
+    </ul>
+  </nav>
+  <main style="flex: 1; padding: 20px;">
+    <div *ngIf="showDashboard">
+      <h2>Dashboard</h2>
+      <p>Chào mừng đến với hệ thống quản lý.</p>
+      <div style="margin-top: 20px;">
+        <h3>Thông tin học vụ</h3>
+        <p>Nội dung thống kê và quản lý học vụ sẽ được hiển thị ở đây.</p>
+      </div>
+    </div>
+    <router-outlet></router-outlet>
+  </main>
+</div>

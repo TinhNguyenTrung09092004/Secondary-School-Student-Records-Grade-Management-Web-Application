@@ -1,0 +1,143 @@
+<h2>Phân Công Giảng Dạy (Trưởng Khoa)</h2>
+<button (click)="openCreateModal()">Phân Công Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1" style="width: 100%; margin-top: 20px;">
+  <thead>
+    <tr>
+      <th>Năm Học</th>
+      <th>Lớp</th>
+      <th>Môn Học</th>
+      <th>Giáo Viên</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let assignment of getMyAssignments()">
+      <td>{{ assignment.schoolYearName }}</td>
+      <td>{{ assignment.className }}</td>
+      <td>{{ assignment.subjectName }}</td>
+      <td>{{ assignment.teacherName }}</td>
+      <td>
+        <button (click)="openEditModal(assignment)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="deleteAssignment(assignment)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+    <tr *ngIf="getMyAssignments().length === 0">
+      <td colspan="5" style="text-align: center; padding: 20px;">Chưa có phân công giảng dạy nào</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeCreateModal()">
+  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 500px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
+    <h3>Phân Công Giảng Dạy Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div>
+      <label>Năm Học: *</label><br>
+      <select [(ngModel)]="newAssignment.schoolYearId" required style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn năm học --</option>
+        <option *ngFor="let year of schoolYearList" [value]="year.schoolYearId">
+          {{ year.schoolYearName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Lớp: *</label><br>
+      <select [(ngModel)]="newAssignment.classId" required style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn lớp --</option>
+        <option *ngFor="let cls of classList" [value]="cls.classId">
+          {{ cls.className }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Môn Học: *</label><br>
+      <select [(ngModel)]="newAssignment.subjectId" required style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn môn học --</option>
+        <option *ngFor="let subject of subjectList" [value]="subject.subjectId">
+          {{ subject.subjectName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Giáo Viên (Trong khoa của bạn): *</label><br>
+      <select [(ngModel)]="newAssignment.teacherId" required style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn giáo viên --</option>
+        <option *ngFor="let teacher of teacherList" [value]="teacher.teacherId">
+          {{ teacher.teacherId }} - {{ teacher.teacherName }} ({{ teacher.subjectName }})
+          <span *ngIf="teacher.isHeadTeacher"> - Trưởng Khoa</span>
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeCreateModal()">Hủy</button>
+      <button (click)="createAssignment()">Phân Công</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeEditModal()">
+  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 500px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Phân Công Giảng Dạy</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div>
+      <label>Năm Học: *</label><br>
+      <select [(ngModel)]="editAssignment.schoolYearId" required style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn năm học --</option>
+        <option *ngFor="let year of schoolYearList" [value]="year.schoolYearId">
+          {{ year.schoolYearName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Lớp: *</label><br>
+      <select [(ngModel)]="editAssignment.classId" required style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn lớp --</option>
+        <option *ngFor="let cls of classList" [value]="cls.classId">
+          {{ cls.className }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Môn Học: *</label><br>
+      <select [(ngModel)]="editAssignment.subjectId" required style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn môn học --</option>
+        <option *ngFor="let subject of subjectList" [value]="subject.subjectId">
+          {{ subject.subjectName }}
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label>Giáo Viên (Trong khoa của bạn): *</label><br>
+      <select [(ngModel)]="editAssignment.teacherId" required style="width: 95%; padding: 5px;">
+        <option value="">-- Chọn giáo viên --</option>
+        <option *ngFor="let teacher of teacherList" [value]="teacher.teacherId">
+          {{ teacher.teacherId }} - {{ teacher.teacherName }} ({{ teacher.subjectName }})
+          <span *ngIf="teacher.isHeadTeacher"> - Trưởng Khoa</span>
+        </option>
+      </select>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeEditModal()">Hủy</button>
+      <button (click)="updateAssignment()">Cập Nhật</button>
+    </div>
+  </div>
+</div>

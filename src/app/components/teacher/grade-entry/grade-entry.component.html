@@ -1,0 +1,158 @@
+<h2>Nhập Điểm Học Sinh</h2>
+
+<div style="margin-bottom: 15px;">
+  <button (click)="toggleCommentMode()"
+          style="padding: 8px 16px; background-color: #2196F3; color: white; border: none; cursor: pointer; border-radius: 4px;">
+    {{ isCommentMode ? 'Chuyển sang Điểm Số (10)' : 'Chuyển sang Nhận Xét (Pass/Fail)' }}
+  </button>
+  <span style="margin-left: 10px; font-weight: bold;">
+    Chế độ hiện tại: {{ isCommentMode ? 'Nhận Xét (Pass/Fail)' : 'Điểm Số (10)' }}
+  </span>
+</div>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<!-- Selection filters -->
+<div style="margin-bottom: 20px;">
+  <div style="margin-bottom: 10px;">
+    <label>Lớp - Môn học:</label><br>
+    <select (change)="onClassChange($event)" style="width: 400px; padding: 5px;">
+      <option value="">-- Chọn lớp và môn học --</option>
+      <option *ngFor="let cls of teacherClasses" [value]="getClassSubjectKey(cls)">
+        {{ cls.className }} - {{ cls.subjectName }} ({{ cls.schoolYearName }})
+      </option>
+    </select>
+  </div>
+
+  <div style="margin-bottom: 10px;">
+    <label>Học kỳ:</label><br>
+    <select (change)="onSemesterChange($event)" style="width: 400px; padding: 5px;">
+      <option value="">-- Chọn học kỳ --</option>
+      <option *ngFor="let semester of semesters" [value]="semester.semesterId">
+        {{ semester.semesterName }}
+      </option>
+    </select>
+  </div>
+</div>
+
+<!-- Grade entry table -->
+<div *ngIf="selectedClass && selectedSemester && studentGrades.length > 0" style="overflow-x: auto;">
+  <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 20px;">
+    <thead>
+      <tr style="background-color: #f0f0f0;">
+        <th style="padding: 10px; text-align: left; min-width: 50px;">STT</th>
+        <th style="padding: 10px; text-align: left; min-width: 150px;">Họ và Tên</th>
+        <th *ngFor="let gradeType of gradeTypes"
+            style="padding: 10px; text-align: center; min-width: 100px;">
+          {{ gradeType.gradeTypeName }}<br>
+          <small>(Hệ số {{ gradeType.coefficient }})</small>
+        </th>
+        <th style="padding: 10px; text-align: center; min-width: 100px; background-color: #e8f5e9;">
+          Điểm Trung Bình
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let student of studentGrades; let i = index">
+        <td style="padding: 10px; text-align: center;">{{ i + 1 }}</td>
+        <td style="padding: 10px;">{{ student.studentName }}</td>
+        <td *ngFor="let gradeType of gradeTypes"
+            style="padding: 5px; text-align: center; position: relative;">
+          <!-- Edit mode (shown regardless of whether grade exists) -->
+          <div *ngIf="isEditing(student.studentId, gradeType.gradeTypeId); else displayMode" style="display: flex; flex-direction: column; gap: 5px;">
+            <!-- Score input mode -->
+            <input *ngIf="!isCommentMode"
+                   type="number"
+                   [(ngModel)]="tempScore"
+                   min="0"
+                   max="10"
+                   step="0.25"
+                   style="width: 60px; padding: 5px; margin: 0 auto;"
+                   (keyup.enter)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
+                   (keyup.escape)="cancelEdit()">
+            <!-- Comment select mode -->
+            <select *ngIf="isCommentMode"
+                    [(ngModel)]="tempScore"
+                    style="width: 80px; padding: 5px; margin: 0 auto;"
+                    (keyup.enter)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
+                    (keyup.escape)="cancelEdit()">
+              <option value="">-- Chọn --</option>
+              <option value="Pass">Pass</option>
+              <option value="Fail">Fail</option>
+            </select>
+            <div style="display: flex; gap: 5px; justify-content: center;">
+              <button (click)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
+                      style="padding: 3px 8px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+                Lưu
+              </button>
+              <button (click)="cancelEdit()"
+                      style="padding: 3px 8px; background-color: #999; color: white; border: none; cursor: pointer;">
+                Hủy
+              </button>
+            </div>
+          </div>
+
+          <!-- Display mode -->
+          <ng-template #displayMode>
+            <ng-container *ngIf="getGradeForStudent(student, gradeType.gradeTypeId) as grade; else noGrade">
+              <!-- Display comment if in comment mode -->
+              <span *ngIf="grade.isComment && grade.comment"
+                    style="cursor: pointer; display: block; padding: 5px;"
+                    [style.color]="grade.comment === 'Pass' ? 'green' : 'red'"
+                    [style.font-weight]="'bold'"
+                    (click)="startEdit(student.studentId, gradeType.gradeTypeId, grade.score, grade.comment)">
+                {{ grade.comment }}
+              </span>
+              <!-- Display score if in score mode -->
+              <span *ngIf="!grade.isComment && grade.score !== null"
+                    style="cursor: pointer; display: block; padding: 5px;"
+                    (click)="startEdit(student.studentId, gradeType.gradeTypeId, grade.score, grade.comment)">
+                {{ grade.score }}
+              </span>
+              <!-- Show input button if no data -->
+              <button *ngIf="!grade.isComment && grade.score === null && !grade.comment"
+                      (click)="startEdit(student.studentId, gradeType.gradeTypeId, null)"
+                      style="padding: 5px 10px; cursor: pointer;">
+                Nhập điểm
+              </button>
+              <!-- Delete button (show only if there's data) -->
+              <button *ngIf="(grade.score !== null || grade.comment)"
+                      (click)="deleteGrade(grade)"
+                      style="margin-top: 5px; padding: 3px 8px; background-color: #f44336; color: white; border: none; cursor: pointer;"
+                      title="Xóa điểm">
+                ×
+              </button>
+            </ng-container>
+            <ng-template #noGrade>
+              <button (click)="startEdit(student.studentId, gradeType.gradeTypeId, null)"
+                      style="padding: 5px 10px; cursor: pointer;">
+                Nhập điểm
+              </button>
+            </ng-template>
+          </ng-template>
+        </td>
+        <!-- Average column -->
+        <td style="padding: 10px; text-align: center; background-color: #f1f8e9; font-weight: bold;"
+            [style.color]="calculateAverage(student) === 'Fail' ? 'red' : (calculateAverage(student) === 'Pass' ? 'green' : '#333')">
+          {{ calculateAverage(student) }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Empty state -->
+<div *ngIf="selectedClass && selectedSemester && studentGrades.length === 0 && !loading" style="margin-top: 20px; padding: 20px; background-color: #f9f9f9; text-align: center;">
+  <p>Không có học sinh nào trong lớp này.</p>
+</div>
+
+<div *ngIf="selectedClass && selectedSemester && gradeTypes.length === 0 && !loading" style="margin-top: 20px; padding: 20px; background-color: #fff3cd; border: 1px solid #ffc107; text-align: center;">
+  <p style="color: #856404; margin: 0;"><strong>Chưa có loại điểm nào trong hệ thống!</strong></p>
+  <p style="color: #856404; margin: 5px 0 0 0;">Vui lòng liên hệ quản trị viên để thêm các loại điểm (Thường xuyên, Giữa kỳ, Cuối kỳ, v.v.)</p>
+</div>
+
+<div *ngIf="!selectedClass || !selectedSemester" style="margin-top: 20px; padding: 20px; background-color: #f9f9f9; text-align: center;">
+  <p>Vui lòng chọn lớp, môn học và học kỳ để bắt đầu nhập điểm.</p>
+</div>

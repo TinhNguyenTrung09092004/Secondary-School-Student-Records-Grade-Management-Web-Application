@@ -1,0 +1,147 @@
+<h2>Xem Điểm Học Sinh</h2>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<div style="margin-bottom: 20px;">
+  <h3>Chọn Lớp và Môn Học</h3>
+  <div *ngIf="teacherClasses.length === 0 && !loading">
+    <p>Bạn chưa được phân công giảng dạy lớp nào.</p>
+  </div>
+  <div *ngIf="teacherClasses.length > 0">
+    <select (change)="onClassChange($event)" style="padding: 5px; width: 400px;">
+      <option value="">-- Chọn lớp và môn học --</option>
+      <option *ngFor="let cls of teacherClasses" [value]="getClassSubjectKey(cls)">
+        {{ cls.className }} - {{ cls.subjectName }} - {{ cls.schoolYearName }}
+      </option>
+    </select>
+  </div>
+</div>
+
+<div *ngIf="selectedClass && studentGradesView.length > 0">
+  <h3>Điểm Học Sinh - {{ selectedClass.className }} - {{ selectedClass.subjectName }}</h3>
+
+  <table border="1" class="grade-table">
+    <thead>
+      <tr>
+        <th rowspan="2">STT</th>
+        <th rowspan="2">Mã Học Sinh</th>
+        <th rowspan="2">Tên Học Sinh</th>
+        <th colspan="1">Học Kỳ I</th>
+        <th colspan="1">Học Kỳ II</th>
+        <th rowspan="2">Điểm Cả Năm</th>
+      </tr>
+      <tr>
+        <th>Trung Bình</th>
+        <th>Trung Bình</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let student of studentGradesView; let i = index">
+        <!-- Main row with averages -->
+        <tr>
+          <td style="text-align: center;">{{ i + 1 }}</td>
+          <td>{{ student.studentId }}</td>
+          <td>{{ student.studentName }}</td>
+
+          <!-- Semester 1 Average -->
+          <td
+            class="clickable-cell"
+            style="text-align: center;"
+            (click)="toggleRow(student.studentId, 'HK1')"
+            [class.expanded]="isRowExpanded(student.studentId, 'HK1')">
+            <span *ngIf="student.semester1?.averageDisplay" class="grade-average">
+              {{ student.semester1?.averageDisplay }}
+              <span class="expand-icon">{{ isRowExpanded(student.studentId, 'HK1') ? '▼' : '▶' }}</span>
+            </span>
+            <span *ngIf="!student.semester1?.averageDisplay" style="color: #999;">-</span>
+          </td>
+
+          <!-- Semester 2 Average -->
+          <td
+            class="clickable-cell"
+            style="text-align: center;"
+            (click)="toggleRow(student.studentId, 'HK2')"
+            [class.expanded]="isRowExpanded(student.studentId, 'HK2')">
+            <span *ngIf="student.semester2?.averageDisplay" class="grade-average">
+              {{ student.semester2?.averageDisplay }}
+              <span class="expand-icon">{{ isRowExpanded(student.studentId, 'HK2') ? '▼' : '▶' }}</span>
+            </span>
+            <span *ngIf="!student.semester2?.averageDisplay" style="color: #999;">-</span>
+          </td>
+
+          <!-- Year Average -->
+          <td style="text-align: center;" class="year-average-cell">
+            <span *ngIf="student.yearAverageDisplay" class="year-average">
+              {{ student.yearAverageDisplay }}
+            </span>
+            <span *ngIf="!student.yearAverageDisplay" style="color: #999;">-</span>
+          </td>
+        </tr>
+
+        <!-- Expandable row for Semester 1 components -->
+        <tr *ngIf="isRowExpanded(student.studentId, 'HK1') && student.semester1" class="component-row">
+          <td colspan="7" class="component-details">
+            <div class="component-container">
+              <h4>Chi tiết điểm Học Kỳ I</h4>
+              <table class="component-table">
+                <thead>
+                  <tr>
+                    <th>Loại Điểm</th>
+                    <th>Hệ Số</th>
+                    <th>Điểm</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let component of student.semester1.components">
+                    <td>{{ component.gradeTypeName }}</td>
+                    <td style="text-align: center;">{{ component.coefficient }}</td>
+                    <td style="text-align: center;">
+                      <span *ngIf="component.score !== null && component.score !== undefined">{{ component.score }}</span>
+                      <span *ngIf="component.isComment && component.comment">{{ component.comment }}</span>
+                      <span *ngIf="!component.score && !component.comment" style="color: #999;">-</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Expandable row for Semester 2 components -->
+        <tr *ngIf="isRowExpanded(student.studentId, 'HK2') && student.semester2" class="component-row">
+          <td colspan="7" class="component-details">
+            <div class="component-container">
+              <h4>Chi tiết điểm Học Kỳ II</h4>
+              <table class="component-table">
+                <thead>
+                  <tr>
+                    <th>Loại Điểm</th>
+                    <th>Hệ Số</th>
+                    <th>Điểm</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let component of student.semester2.components">
+                    <td>{{ component.gradeTypeName }}</td>
+                    <td style="text-align: center;">{{ component.coefficient }}</td>
+                    <td style="text-align: center;">
+                      <span *ngIf="component.score !== null && component.score !== undefined">{{ component.score }}</span>
+                      <span *ngIf="component.isComment && component.comment">{{ component.comment }}</span>
+                      <span *ngIf="!component.score && !component.comment" style="color: #999;">-</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
+
+<div *ngIf="selectedClass && studentGradesView.length === 0 && !loading">
+  <p>Không có học sinh trong lớp này hoặc chưa có điểm.</p>
+</div>
+

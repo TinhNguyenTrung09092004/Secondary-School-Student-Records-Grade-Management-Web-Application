@@ -1,0 +1,56 @@
+<h2>Quản Lý Kết Quả</h2>
+
+<button (click)="startAdd()">Thêm Kết Quả Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+
+<!-- Form Section -->
+<div *ngIf="showForm" style="border: 1px solid #ccc; padding: 15px; margin: 20px 0; background: #f9f9f9;">
+  <h3>{{ isEditing ? 'Chỉnh Sửa Kết Quả' : 'Thêm Kết Quả Mới' }}</h3>
+
+  <div style="margin-bottom: 10px;">
+    <label>Mã Kết Quả (tối đa 6 ký tự):</label><br>
+    <input
+      type="text"
+      [(ngModel)]="formData.resultId"
+      maxlength="6"
+      [disabled]="isEditing"
+      required
+      style="width: 300px;">
+  </div>
+
+  <div style="margin-bottom: 10px;">
+    <label>Tên Kết Quả (tối đa 30 ký tự):</label><br>
+    <input
+      type="text"
+      [(ngModel)]="formData.resultName"
+      maxlength="30"
+      required
+      style="width: 300px;">
+  </div>
+
+  <button (click)="save()">{{ isEditing ? 'Cập Nhật' : 'Tạo' }}</button>
+  <button (click)="cancel()">Hủy</button>
+</div>
+
+<!-- Table Section -->
+<table border="1">
+  <thead>
+    <tr>
+      <th>Mã Kết Quả</th>
+      <th>Tên Kết Quả</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of results">
+      <td>{{ item.resultId }}</td>
+      <td>{{ item.resultName }}</td>
+      <td>
+        <button (click)="startEdit(item)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="delete(item.resultId)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

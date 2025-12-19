@@ -1,0 +1,124 @@
+<h2>Quản Lý Người Dùng</h2>
+<button (click)="openCreateModal()">Thêm Người Dùng Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>Quyền</th>
+      <th>Trạng thái</th>
+      <th>Xác nhận Email</th>
+      <th>Lịch xóa</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of users" [style.background-color]="user.scheduledDeletionDate ? '#ffcccc' : 'white'">
+      <td>{{ user.email }}</td>
+      <td>
+        <span *ngFor="let role of user.roles">{{ getRoleDisplay(role) }} </span>
+      </td>
+      <td>{{ user.isLockedOut ? 'Đã khóa' : 'Hoạt động' }}</td>
+      <td>{{ user.emailConfirmed ? 'Đã xác nhận' : 'Chưa xác nhận' }}</td>
+      <td>
+        <span *ngIf="user.scheduledDeletionDate" style="color: red; font-weight: bold;">
+          {{ user.scheduledDeletionDate | date:'dd/MM/yyyy HH:mm' }}
+        </span>
+        <span *ngIf="!user.scheduledDeletionDate">-</span>
+      </td>
+      <td>
+        <button (click)="openEditModal(user)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="openRoleModal(user)" title="Quản lý quyền">Quyền</button>
+        <button (click)="toggleLockout(user)" [title]="user.isLockedOut ? 'Mở khóa' : 'Khóa'">
+          {{ user.isLockedOut ? 'Mở khóa' : 'Khóa' }}
+        </button>
+        <button *ngIf="user.scheduledDeletionDate" (click)="cancelDeletion(user)" title="Hủy xóa" style="background-color: green; color: white;">Hủy xóa</button>
+        <button *ngIf="!user.scheduledDeletionDate" (click)="deleteUser(user)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeCreateModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Thêm Người Dùng Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Email:</label><br>
+      <input type="email" [(ngModel)]="newUser.email" required>
+    </p>
+
+    <p><strong>Lưu ý:</strong> Người dùng sẽ nhận email để tự thiết lập mật khẩu.</p>
+
+    <p>
+      <label>Quyền:</label><br>
+      <label *ngFor="let role of roles">
+        <input
+          type="checkbox"
+          [checked]="newUser.roles.includes(role.name)"
+          (change)="toggleRoleForNewUser(role.name)">
+        {{ getRoleDisplay(role.name) }}
+      </label>
+    </p>
+
+    <button (click)="closeCreateModal()">Hủy</button>
+    <button (click)="createUser()">Tạo</button>
+  </div>
+</div>
+
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeEditModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Người Dùng</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Email:</label><br>
+      <input type="email" [(ngModel)]="editUser.email" required>
+    </p>
+
+    <p>
+      <label>Quyền:</label><br>
+      <label *ngFor="let role of roles">
+        <input
+          type="checkbox"
+          [checked]="editUser.roles.includes(role.name)"
+          (change)="toggleRoleForEditUser(role.name)">
+        {{ getRoleDisplay(role.name) }}
+      </label>
+    </p>
+
+    <button (click)="closeEditModal()">Hủy</button>
+    <button (click)="updateUser()">Cập nhật</button>
+  </div>
+</div>
+
+<div *ngIf="showRoleModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeRoleModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Quản Lý Quyền</h3>
+    <button (click)="closeRoleModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p><strong>Email:</strong> {{ selectedUser?.email }}</p>
+
+    <p>
+      <label>Quyền:</label><br>
+      <label *ngFor="let role of roles">
+        <input
+          type="checkbox"
+          [checked]="hasRole(role.name)"
+          (change)="toggleRole(role.name)">
+        {{ getRoleDisplay(role.name) }} ({{ role.userCount }} người dùng)
+      </label>
+    </p>
+
+    <button (click)="closeRoleModal()">Hủy</button>
+    <button (click)="updateRoles()">Cập nhật</button>
+  </div>
+</div>

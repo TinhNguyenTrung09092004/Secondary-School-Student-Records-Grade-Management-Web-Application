@@ -1,0 +1,230 @@
+<h2>Quản Lý Học Sinh</h2>
+<button (click)="openCreateModal()">Thêm Học Sinh Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1" style="width: 100%; margin-top: 20px;">
+  <thead>
+    <tr>
+      <th>Mã HS</th>
+      <th>Họ Tên</th>
+      <th>Giới Tính</th>
+      <th>Ngày Sinh</th>
+      <th>Email</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let student of studentList">
+      <td>{{ student.studentId }}</td>
+      <td>{{ student.fullName }}</td>
+      <td>{{ student.gender ? 'Nam' : 'Nữ' }}</td>
+      <td>{{ formatDate(student.dateOfBirth) }}</td>
+      <td>{{ student.email }}</td>
+      <td>
+        <button (click)="openEditModal(student)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="deleteStudent(student)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeCreateModal()">
+  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 600px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
+    <h3>Thêm Học Sinh Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <label>Mã Học Sinh: *</label><br>
+        <input type="text" [(ngModel)]="newStudent.studentId" maxlength="6" required style="width: 95%;" placeholder="VD: HS001">
+      </div>
+
+      <div>
+        <label>Họ Tên: *</label><br>
+        <input type="text" [(ngModel)]="newStudent.fullName" maxlength="30" required style="width: 95%;">
+      </div>
+
+      <div>
+        <label>Giới Tính: *</label><br>
+        <select [(ngModel)]="newStudent.gender" style="width: 100%;">
+          <option [value]="true">Nam</option>
+          <option [value]="false">Nữ</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Ngày Sinh: *</label><br>
+        <input type="date" [(ngModel)]="newStudent.dateOfBirth" required style="width: 95%;">
+      </div>
+
+      <div>
+        <label>Email: *</label><br>
+        <input type="email" [(ngModel)]="newStudent.email" maxlength="50" required style="width: 95%;">
+      </div>
+
+      <div style="grid-column: 1 / -1;">
+        <label>Địa Chỉ: *</label><br>
+        <input type="text" [(ngModel)]="newStudent.address" maxlength="50" required style="width: 98%;">
+      </div>
+
+      <div>
+        <label>Dân Tộc: *</label><br>
+        <select [(ngModel)]="newStudent.ethnicityId" required style="width: 100%;">
+          <option value="">-- Chọn dân tộc --</option>
+          <option *ngFor="let ethnicity of ethnicityList" [value]="ethnicity.ethnicityId">
+            {{ ethnicity.ethnicityName }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tôn Giáo: *</label><br>
+        <select [(ngModel)]="newStudent.religionId" required style="width: 100%;">
+          <option value="">-- Chọn tôn giáo --</option>
+          <option *ngFor="let religion of religionList" [value]="religion.religionId">
+            {{ religion.religionName }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tên Cha: *</label><br>
+        <input type="text" [(ngModel)]="newStudent.fatherName" maxlength="30" required style="width: 95%;">
+      </div>
+
+      <div>
+        <label>Nghề Nghiệp Cha: *</label><br>
+        <select [(ngModel)]="newStudent.fatherOccupationId" required style="width: 100%;">
+          <option value="">-- Chọn nghề nghiệp --</option>
+          <option *ngFor="let occupation of occupationList" [value]="occupation.occupationId">
+            {{ occupation.occupationName }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tên Mẹ: *</label><br>
+        <input type="text" [(ngModel)]="newStudent.motherName" maxlength="30" required style="width: 95%;">
+      </div>
+
+      <div>
+        <label>Nghề Nghiệp Mẹ: *</label><br>
+        <select [(ngModel)]="newStudent.motherOccupationId" required style="width: 100%;">
+          <option value="">-- Chọn nghề nghiệp --</option>
+          <option *ngFor="let occupation of occupationList" [value]="occupation.occupationId">
+            {{ occupation.occupationName }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeCreateModal()">Hủy</button>
+      <button (click)="createStudent()">Tạo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeEditModal()">
+  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 600px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Học Sinh</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <label>Mã Học Sinh:</label><br>
+        <input type="text" [value]="selectedStudent?.studentId" disabled style="width: 95%;">
+      </div>
+
+      <div>
+        <label>Giới Tính: *</label><br>
+        <select [(ngModel)]="editStudent.gender" style="width: 100%;">
+          <option [value]="true">Nam</option>
+          <option [value]="false">Nữ</option>
+        </select>
+      </div>
+
+      <div style="grid-column: 1 / -1;">
+        <label>Họ Tên: *</label><br>
+        <input type="text" [(ngModel)]="editStudent.fullName" maxlength="30" required style="width: 98%;">
+      </div>
+
+      <div>
+        <label>Ngày Sinh: *</label><br>
+        <input type="date" [(ngModel)]="editStudent.dateOfBirth" required style="width: 95%;">
+      </div>
+
+      <div>
+        <label>Email: *</label><br>
+        <input type="email" [(ngModel)]="editStudent.email" maxlength="50" required style="width: 95%;">
+      </div>
+
+      <div style="grid-column: 1 / -1;">
+        <label>Địa Chỉ: *</label><br>
+        <input type="text" [(ngModel)]="editStudent.address" maxlength="50" required style="width: 98%;">
+      </div>
+
+      <div>
+        <label>Dân Tộc: *</label><br>
+        <select [(ngModel)]="editStudent.ethnicityId" required style="width: 100%;">
+          <option value="">-- Chọn dân tộc --</option>
+          <option *ngFor="let ethnicity of ethnicityList" [value]="ethnicity.ethnicityId">
+            {{ ethnicity.ethnicityName }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tôn Giáo: *</label><br>
+        <select [(ngModel)]="editStudent.religionId" required style="width: 100%;">
+          <option value="">-- Chọn tôn giáo --</option>
+          <option *ngFor="let religion of religionList" [value]="religion.religionId">
+            {{ religion.religionName }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tên Cha: *</label><br>
+        <input type="text" [(ngModel)]="editStudent.fatherName" maxlength="30" required style="width: 95%;">
+      </div>
+
+      <div>
+        <label>Nghề Nghiệp Cha: *</label><br>
+        <select [(ngModel)]="editStudent.fatherOccupationId" required style="width: 100%;">
+          <option value="">-- Chọn nghề nghiệp --</option>
+          <option *ngFor="let occupation of occupationList" [value]="occupation.occupationId">
+            {{ occupation.occupationName }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tên Mẹ: *</label><br>
+        <input type="text" [(ngModel)]="editStudent.motherName" maxlength="30" required style="width: 95%;">
+      </div>
+
+      <div>
+        <label>Nghề Nghiệp Mẹ: *</label><br>
+        <select [(ngModel)]="editStudent.motherOccupationId" required style="width: 100%;">
+          <option value="">-- Chọn nghề nghiệp --</option>
+          <option *ngFor="let occupation of occupationList" [value]="occupation.occupationId">
+            {{ occupation.occupationName }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button (click)="closeEditModal()">Hủy</button>
+      <button (click)="updateStudent()">Cập nhật</button>
+    </div>
+  </div>
+</div>

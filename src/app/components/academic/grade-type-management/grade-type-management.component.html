@@ -1,0 +1,83 @@
+<h2>Quản Lý Loại Điểm</h2>
+<button (click)="openCreateModal()">Thêm Loại Điểm Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Mã Loại Điểm</th>
+      <th>Tên Loại Điểm</th>
+      <th>Hệ Số</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let gradeType of gradeTypeList">
+      <td>{{ gradeType.gradeTypeId }}</td>
+      <td>{{ gradeType.gradeTypeName }}</td>
+      <td>{{ gradeType.coefficient }}</td>
+      <td>
+        <button (click)="openEditModal(gradeType)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="deleteGradeType(gradeType)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeCreateModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Thêm Loại Điểm Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Mã Loại Điểm: *</label><br>
+      <input type="text" [(ngModel)]="newGradeType.gradeTypeId" maxlength="6" required placeholder="VD: TX">
+    </p>
+
+    <p>
+      <label>Tên Loại Điểm: *</label><br>
+      <input type="text" [(ngModel)]="newGradeType.gradeTypeName" maxlength="30" required placeholder="VD: Thường xuyên">
+    </p>
+
+    <p>
+      <label>Hệ Số: *</label><br>
+      <input type="number" [(ngModel)]="newGradeType.coefficient" min="1" required>
+    </p>
+
+    <button (click)="closeCreateModal()">Hủy</button>
+    <button (click)="createGradeType()">Tạo</button>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeEditModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Loại Điểm</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Mã Loại Điểm: *</label><br>
+      <input type="text" [(ngModel)]="editGradeType.gradeTypeId" maxlength="6" required>
+      <br><small style="color: #666;">Lưu ý: Chỉ được thay đổi nếu loại điểm chưa được sử dụng</small>
+    </p>
+
+    <p>
+      <label>Tên Loại Điểm: *</label><br>
+      <input type="text" [(ngModel)]="editGradeType.gradeTypeName" maxlength="30" required>
+    </p>
+
+    <p>
+      <label>Hệ Số: *</label><br>
+      <input type="number" [(ngModel)]="editGradeType.coefficient" min="1" required>
+    </p>
+
+    <button (click)="closeEditModal()">Hủy</button>
+    <button (click)="updateGradeType()">Cập nhật</button>
+  </div>
+</div>

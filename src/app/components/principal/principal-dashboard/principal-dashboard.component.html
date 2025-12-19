@@ -1,0 +1,104 @@
+<h2>Bảng Điều Khiển Hiệu Trưởng</h2>
+
+<div style="margin-bottom: 20px;">
+  <label>Năm học:</label>
+  <select [(ngModel)]="selectedSchoolYearId" (change)="loadResults()" style="margin-left: 10px; margin-right: 20px;">
+    <option *ngFor="let year of schoolYears" [value]="year.id">{{ year.name }}</option>
+  </select>
+
+  <label>Xem theo:</label>
+  <select [(ngModel)]="selectedView" style="margin-left: 10px; margin-right: 20px;">
+    <option value="semester1">Học kì 1</option>
+    <option value="semester2">Học kì 2</option>
+    <option value="year">Cả năm</option>
+  </select>
+
+  <button (click)="recalculateAll()" style="margin-left: 20px;">Tính toán lại tất cả</button>
+</div>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="isLoading">Đang tải dữ liệu...</p>
+
+<div *ngFor="let gradeLevel of gradeLevelResults" style="margin-bottom: 30px;">
+  <h3>{{ gradeLevel.gradeLevelName }}</h3>
+
+  <div *ngFor="let class of gradeLevel.classes" style="margin-bottom: 20px;">
+    <h4>{{ class.className }}</h4>
+
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th style="width: 40px;"></th>
+          <th>Tên học sinh</th>
+          <th>Điểm TB</th>
+          <th>Học lực</th>
+          <th>Hạnh kiểm</th>
+          <th *ngIf="selectedView === 'year'">Kết quả</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let student of class.students">
+          <!-- Student row -->
+          <tr>
+            <td style="text-align: center;">
+              <button
+                (click)="toggleStudentDetails(student.studentId)"
+                style="border: none; background: none; cursor: pointer; font-size: 16px;">
+                {{ isStudentExpanded(student.studentId) ? '▼' : '▶' }}
+              </button>
+            </td>
+            <td>{{ student.studentName }}</td>
+            <td style="text-align: center;">
+              {{ getDisplayedAverage(student)?.toFixed(2) || '-' }}
+            </td>
+            <td style="text-align: center;">
+              {{ getDisplayedAcademicPerformance(student) || '-' }}
+            </td>
+            <td style="text-align: center;">
+              {{ getDisplayedConduct(student) || '-' }}
+            </td>
+            <td *ngIf="selectedView === 'year'" style="text-align: center;">
+              {{ student.yearResult || '-' }}
+            </td>
+          </tr>
+
+          <!-- Subject details row (expandable) -->
+          <tr *ngIf="isStudentExpanded(student.studentId)">
+            <td colspan="6" style="background-color: #f5f5f5; padding: 10px;">
+              <strong>Chi tiết môn học:</strong>
+              <table border="1" style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th>Môn học</th>
+                    <th *ngIf="selectedView === 'semester1' || selectedView === 'year'">Học kì 1</th>
+                    <th *ngIf="selectedView === 'semester2' || selectedView === 'year'">Học kì 2</th>
+                    <th *ngIf="selectedView === 'year'">Cả năm</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let subject of student.subjectResults">
+                    <td>{{ subject.subjectName }}</td>
+                    <td *ngIf="selectedView === 'semester1' || selectedView === 'year'"
+                        style="text-align: center;">
+                      {{ subject.semester1Average?.toFixed(2) || '-' }}
+                    </td>
+                    <td *ngIf="selectedView === 'semester2' || selectedView === 'year'"
+                        style="text-align: center;">
+                      {{ subject.semester2Average?.toFixed(2) || '-' }}
+                    </td>
+                    <td *ngIf="selectedView === 'year'" style="text-align: center;">
+                      {{ subject.yearAverage?.toFixed(2) || '-' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p *ngIf="!isLoading && gradeLevelResults.length === 0">Không có dữ liệu</p>

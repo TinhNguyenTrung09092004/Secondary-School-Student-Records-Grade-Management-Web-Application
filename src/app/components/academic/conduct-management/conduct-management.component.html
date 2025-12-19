@@ -1,0 +1,67 @@
+<h2>Quản Lý Hạnh Kiểm</h2>
+<button (click)="openCreateModal()">Thêm Hạnh Kiểm Mới</button>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Mã Hạnh Kiểm</th>
+      <th>Tên Hạnh Kiểm</th>
+      <th>Hành động</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let conduct of conductList">
+      <td>{{ conduct.conductId }}</td>
+      <td>{{ conduct.conductName }}</td>
+      <td>
+        <button (click)="openEditModal(conduct)" title="Chỉnh sửa">Sửa</button>
+        <button (click)="deleteConduct(conduct)" title="Xóa">Xóa</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Create Modal -->
+<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeCreateModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Thêm Hạnh Kiểm Mới</h3>
+    <button (click)="closeCreateModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p><strong>Lưu ý:</strong> Mã hạnh kiểm sẽ được tự động tạo bởi hệ thống.</p>
+
+    <p>
+      <label>Tên Hạnh Kiểm:</label><br>
+      <input type="text" [(ngModel)]="newConduct.conductName" maxlength="30" required>
+    </p>
+
+    <button (click)="closeCreateModal()">Hủy</button>
+    <button (click)="createConduct()">Tạo</button>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);" (click)="closeEditModal()">
+  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black;" (click)="$event.stopPropagation()">
+    <h3>Chỉnh Sửa Hạnh Kiểm</h3>
+    <button (click)="closeEditModal()" style="float: right;">×</button>
+    <br><br>
+
+    <p>
+      <label>Mã Hạnh Kiểm:</label><br>
+      <input type="text" [value]="selectedConduct?.conductId" disabled>
+    </p>
+
+    <p>
+      <label>Tên Hạnh Kiểm:</label><br>
+      <input type="text" [(ngModel)]="editConduct.conductName" maxlength="30" required>
+    </p>
+
+    <button (click)="closeEditModal()">Hủy</button>
+    <button (click)="updateConduct()">Cập nhật</button>
+  </div>
+</div>

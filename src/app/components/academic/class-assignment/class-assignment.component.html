@@ -1,0 +1,130 @@
+<h2>Phân Công Lớp Cho Học Sinh</h2>
+
+<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+<p *ngIf="loading">Đang tải...</p>
+
+<!-- Filter Section -->
+<div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc;">
+  <h3>Chọn Lớp</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+    <div>
+      <label>Năm Học: *</label><br>
+      <select [(ngModel)]="selectedSchoolYearId" (change)="onSchoolYearChange()" style="width: 95%;">
+        <option value="">-- Chọn năm học --</option>
+        <option *ngFor="let year of schoolYearList" [value]="year.schoolYearId">
+          {{ year.schoolYearName }}
+        </option>
+      </select>
+    </div>
+
+    <div>
+      <label>Khối: *</label><br>
+      <select [(ngModel)]="selectedGradeLevelId" (change)="onGradeLevelChange()" style="width: 95%;">
+        <option value="">-- Chọn khối --</option>
+        <option *ngFor="let grade of gradeLevelList" [value]="grade.gradeLevelId">
+          {{ grade.gradeLevelName }}
+        </option>
+      </select>
+    </div>
+
+    <div>
+      <label>Lớp: *</label><br>
+      <select [(ngModel)]="selectedClassId" (change)="onClassChange()" style="width: 95%;">
+        <option value="">-- Chọn lớp --</option>
+        <option *ngFor="let class of classList" [value]="class.classId">
+          {{ class.className }}
+        </option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Class Info -->
+<div *ngIf="classInfo" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9;">
+  <h3>Thông Tin Lớp: {{ classInfo.className }}</h3>
+  <p><strong>Giáo viên chủ nhiệm:</strong> {{ classInfo.teacherName }}</p>
+  <p><strong>Sĩ số:</strong> {{ classInfo.currentStudentCount }} / {{ classInfo.classSize }}</p>
+  <p *ngIf="classInfo.currentStudentCount >= classInfo.classSize" style="color: red; font-weight: bold;">Lớp đã đầy!</p>
+</div>
+
+<!-- Assignment Interface -->
+<div *ngIf="selectedClassId" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+  <!-- Assigned Students -->
+  <div>
+    <h3>Học Sinh Trong Lớp ({{ assignedStudents.length }})</h3>
+    <div style="margin-bottom: 10px;">
+      <button (click)="removeSelectedStudents()" [disabled]="selectedAssignedStudents.length === 0">
+        Xóa Khỏi Lớp ({{ selectedAssignedStudents.length }})
+      </button>
+    </div>
+    <div style="border: 1px solid #ccc; max-height: 400px; overflow-y: auto;">
+      <table border="1" style="width: 100%;">
+        <thead>
+          <tr>
+            <th style="width: 40px;"><input type="checkbox" (change)="toggleAllAssigned($event)"></th>
+            <th>Mã HS</th>
+            <th>Họ Tên</th>
+            <th>Giới Tính</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of assignedStudents">
+            <td style="text-align: center;">
+              <input type="checkbox" [checked]="selectedAssignedStudents.includes(student.studentId)" (change)="toggleAssignedStudent(student.studentId)">
+            </td>
+            <td>{{ student.studentId }}</td>
+            <td>{{ student.fullName }}</td>
+            <td>{{ student.gender ? 'Nam' : 'Nữ' }}</td>
+          </tr>
+          <tr *ngIf="assignedStudents.length === 0">
+            <td colspan="4" style="text-align: center; padding: 20px; color: #999;">
+              Chưa có học sinh nào trong lớp
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Available Students -->
+  <div>
+    <h3>Học Sinh Chưa Có Lớp ({{ availableStudents.length }})</h3>
+    <div style="margin-bottom: 10px;">
+      <button (click)="assignSelectedStudents()" [disabled]="selectedAvailableStudents.length === 0">
+        Phân Công Vào Lớp ({{ selectedAvailableStudents.length }})
+      </button>
+    </div>
+    <div style="border: 1px solid #ccc; max-height: 400px; overflow-y: auto;">
+      <table border="1" style="width: 100%;">
+        <thead>
+          <tr>
+            <th style="width: 40px;"><input type="checkbox" (change)="toggleAllAvailable($event)"></th>
+            <th>Mã HS</th>
+            <th>Họ Tên</th>
+            <th>Giới Tính</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of availableStudents">
+            <td style="text-align: center;">
+              <input type="checkbox" [checked]="selectedAvailableStudents.includes(student.studentId)" (change)="toggleAvailableStudent(student.studentId)">
+            </td>
+            <td>{{ student.studentId }}</td>
+            <td>{{ student.fullName }}</td>
+            <td>{{ student.gender ? 'Nam' : 'Nữ' }}</td>
+          </tr>
+          <tr *ngIf="availableStudents.length === 0">
+            <td colspan="4" style="text-align: center; padding: 20px; color: #999;">
+              Không có học sinh khả dụng
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!selectedClassId" style="text-align: center; padding: 40px; color: #999;">
+  <p>Vui lòng chọn năm học, khối và lớp để bắt đầu phân công học sinh</p>
+</div>

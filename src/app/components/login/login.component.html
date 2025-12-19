@@ -1,0 +1,47 @@
+<div style="  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;">
+<h1>Đăng Nhập</h1>
+
+<div id="google-button"></div>
+<br>
+<button (click)="loginWithMicrosoft()">Đăng nhập với Microsoft</button>
+<br>
+<button (click)="loginWithFace()" class="face-login-btn">Đăng nhập bằng Khuôn mặt</button>
+
+<hr>
+<p>hoặc</p>
+
+<form (ngSubmit)="onLogin()">
+  <p>
+    <label for="email">Email:</label><br>
+    <input
+      id="email"
+      type="email"
+      [(ngModel)]="email"
+      name="email"
+      required>
+  </p>
+
+  <p>
+    <label for="password">Mật khẩu:</label><br>
+    <input
+      id="password"
+      type="password"
+      [(ngModel)]="password"
+      name="password"
+      required>
+  </p>
+
+  <p>
+    <a routerLink="/forgot-password">Quên mật khẩu?</a>
+  </p>
+
+  <p>
+    <button type="submit">Đăng Nhập</button>
+  </p>
+</form>
+
+<p *ngIf="error" style="color: red;">{{ error }}</p>
+</div>
