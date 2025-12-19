@@ -12,7 +12,7 @@ Backend API for the Secondary School Student Records & Grade Management Web Appl
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/TinhNguyenTrung09092004/Secondary-School-Student-Records-Grade-Management-Web-Application.git
 cd api
 ```
 
