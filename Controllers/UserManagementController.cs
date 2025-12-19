@@ -63,7 +63,6 @@ public class UserManagementController : ControllerBase
         return Ok(user);
     }
 
-    // REMOVED: Admin can no longer set/change user passwords
     [HttpPut("users/{userId}/password")]
     [Obsolete("This endpoint is deprecated. Users must set their own passwords via email link.")]
     public async Task<IActionResult> UpdateUserPassword(string userId, [FromBody] UpdateUserPasswordDto passwordDto)
