@@ -1,0 +1,217 @@
+.NET 8.0.414
+C:\Users\tinh8\Documents\Project\API
+|   .env
+|   .gitignore
+|   API.csproj
+|   appsettings.Development.json
+|   appsettings.json
+|   important.txt
+|   Program.cs
+|   Structure.txt
+|   
++---Backups
++---bin
++---Controllers
+|       AcademicPerformanceController.cs
+|       AuthController.cs
+|       BackupController.cs
+|       ClassAssignmentController.cs
+|       ClassController.cs
+|       ConductController.cs
+|       ConductGradingController.cs
+|       DepartmentController.cs
+|       EthnicityController.cs
+|       FaceRecognitionController.cs
+|       GradeController.cs
+|       GradeLevelController.cs
+|       GradeTypeController.cs
+|       OccupationController.cs
+|       ReligionController.cs
+|       ResultController.cs
+|       SchoolYearController.cs
+|       SemesterController.cs
+|       StudentController.cs
+|       SubjectController.cs
+|       TeacherController.cs
+|       TeachingAssignmentController.cs
+|       UserManagementController.cs
+|
++---Data
+|       ApplicationDbContext.cs
+|       SeedData.cs
+|
++---DTOs
+|       AcademicPerformanceDtos.cs
+|       BackupDto.cs
+|       ClassAssignmentDtos.cs
+|       ClassDtos.cs
+|       ConductDtos.cs
+|       ConductGradingDtos.cs
+|       DepartmentDtos.cs
+|       EthnicityDtos.cs
+|       ExternalAuthDto.cs
+|       FaceRecognitionDtos.cs
+|       ForgotPasswordDto.cs
+|       GradeDtos.cs
+|       GradeLevelDtos.cs
+|       GradeTypeDtos.cs
+|       LoginRequestDto.cs
+|       LoginResponseDto.cs
+|       OccupationDtos.cs
+|       ReligionDtos.cs
+|       ResetPasswordDto.cs
+|       ResultDtos.cs
+|       SchoolYearDtos.cs
+|       SemesterDtos.cs
+|       StudentDto.cs
+|       SubjectDtos.cs
+|       TeacherDtos.cs
+|       TeachingAssignmentDtos.cs
+|       UpdateTeachingAssignmentDto.cs
+|       UserManagementDtos.cs
+|
++---Helpers
+|       JwtHelper.cs
+|
++---Middleware
+|       ExceptionHandlingMiddleware.cs
+|
++---Migrations
+|       20251218113734_AddStudentSemesterResult.cs
+|       20251218113734_AddStudentSemesterResult.Designer.cs
+|       ApplicationDbContextModelSnapshot.cs
+|
++---Models
+|       AcademicPerformance.cs
+|       ApplicationUser.cs
+|       AuthModels.cs
+|       BackupSchedule.cs
+|       Class.cs
+|       ClassAssignment.cs
+|       ClassSemesterResult.cs
+|       ClassSubjectResult.cs
+|       Conduct.cs
+|       Department.cs
+|       Ethnicity.cs
+|       Grade.cs
+|       GradeLevel.cs
+|       GradeType.cs
+|       Occupation.cs
+|       Regulation.cs
+|       Religion.cs
+|       Result.cs
+|       SchoolYear.cs
+|       Semester.cs
+|       Student.cs
+|       StudentSemesterResult.cs
+|       StudentSubjectResult.cs
+|       StudentYearResult.cs
+|       Subject.cs
+|       Teacher.cs
+|       TeachingAssignment.cs
+|
++---obj
++---Properties
+|       launchSettings.json
+|
++---Repositories
+|       AcademicPerformanceRepository.cs
+|       BackupScheduleRepository.cs
+|       ClassAssignmentRepository.cs
+|       ClassRepository.cs
+|       ClassSemesterResultRepository.cs
+|       ClassSubjectResultRepository.cs
+|       ConductRepository.cs
+|       DepartmentRepository.cs
+|       EthnicityRepository.cs
+|       GradeLevelRepository.cs
+|       GradeRepository.cs
+|       GradeTypeRepository.cs
+|       IAcademicPerformanceRepository.cs
+|       IBackupScheduleRepository.cs
+|       IClassAssignmentRepository.cs
+|       IClassRepository.cs
+|       IClassSemesterResultRepository.cs
+|       IClassSubjectResultRepository.cs
+|       IConductRepository.cs
+|       IDepartmentRepository.cs
+|       IEthnicityRepository.cs
+|       IGradeLevelRepository.cs
+|       IGradeRepository.cs
+|       IGradeTypeRepository.cs
+|       IOccupationRepository.cs
+|       IReligionRepository.cs
+|       IRepository.cs
+|       IRepositoryBase.cs
+|       IRepositoryInt.cs
+|       IResultRepository.cs
+|       ISchoolYearRepository.cs
+|       ISemesterRepository.cs
+|       IStudentRepository.cs
+|       IStudentSubjectResultRepository.cs
+|       IStudentYearResultRepository.cs
+|       ISubjectRepository.cs
+|       ITeacherRepository.cs
+|       ITeachingAssignmentRepository.cs
+|       OccupationRepository.cs
+|       ReligionRepository.cs
+|       RepositoryBase.cs
+|       ResultRepository.cs
+|       SchoolYearRepository.cs
+|       SemesterRepository.cs
+|       StudentRepository.cs
+|       StudentSubjectResultRepository.cs
+|       StudentYearResultRepository.cs
+|       SubjectRepository.cs
+|       TeacherRepository.cs
+|       TeachingAssignmentRepository.cs
+|
+\---Services
+        AcademicPerformanceService.cs
+        AccountCleanupService.cs
+        AuthService.cs
+        BackupSchedulerService.cs
+        BackupService.cs
+        ClassAssignmentService.cs
+        ClassService.cs
+        ConductGradingService.cs
+        ConductService.cs
+        DepartmentService.cs
+        EmailService.cs
+        EthnicityService.cs
+        FaceRecognitionService.cs
+        GradeLevelService.cs
+        GradeService.cs
+        IAcademicPerformanceService.cs
+        IAuthService.cs
+        IBackupService.cs
+        IClassAssignmentService.cs
+        IClassService.cs
+        IConductGradingService.cs
+        IConductService.cs
+        IDepartmentService.cs
+        IEmailService.cs
+        IEthnicityService.cs
+        IFaceRecognitionService.cs
+        IGradeLevelService.cs
+        IGradeService.cs
+        IOccupationService.cs
+        IReligionService.cs
+        IResultService.cs
+        ISchoolYearService.cs
+        ISemesterService.cs
+        IStudentService.cs
+        ISubjectService.cs
+        ITeacherService.cs
+        ITeachingAssignmentService.cs
+        IUserManagementService.cs
+        OccupationService.cs
+        ReligionService.cs
+        ResultService.cs
+        SchoolYearService.cs
+        SemesterService.cs
+        StudentService.cs
+        SubjectService.cs
+        TeacherService.cs
+        TeachingAssignmentService.cs
+        UserManagementService.cs
