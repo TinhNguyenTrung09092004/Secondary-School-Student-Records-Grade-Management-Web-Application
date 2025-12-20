@@ -5,14 +5,16 @@ C:\Users\tinh8\Documents\Project\API
 |   API.csproj
 |   appsettings.Development.json
 |   appsettings.json
-|   important.txt
+|   env.example
 |   Program.cs
-|   Structure.txt
+|   README.md
+|   StructureAPI.txt
 |   
 +---Backups
 +---bin
 +---Controllers
 |       AcademicPerformanceController.cs
+|       AcademicRankingController.cs
 |       AuthController.cs
 |       BackupController.cs
 |       ClassAssignmentController.cs
@@ -26,6 +28,7 @@ C:\Users\tinh8\Documents\Project\API
 |       GradeLevelController.cs
 |       GradeTypeController.cs
 |       OccupationController.cs
+|       PrincipalDashboardController.cs
 |       ReligionController.cs
 |       ResultController.cs
 |       SchoolYearController.cs
@@ -58,6 +61,7 @@ C:\Users\tinh8\Documents\Project\API
 |       LoginRequestDto.cs
 |       LoginResponseDto.cs
 |       OccupationDtos.cs
+|       PrincipalDashboardDtos.cs
 |       ReligionDtos.cs
 |       ResetPasswordDto.cs
 |       ResultDtos.cs
@@ -77,8 +81,8 @@ C:\Users\tinh8\Documents\Project\API
 |       ExceptionHandlingMiddleware.cs
 |
 +---Migrations
-|       20251218113734_AddStudentSemesterResult.cs
-|       20251218113734_AddStudentSemesterResult.Designer.cs
+|       20251219043842_RemoveScoreColumnsFromAcademicPerformance.cs
+|       20251219043842_RemoveScoreColumnsFromAcademicPerformance.Designer.cs
 |       ApplicationDbContextModelSnapshot.cs
 |
 +---Models
@@ -168,6 +172,7 @@ C:\Users\tinh8\Documents\Project\API
 |
 \---Services
         AcademicPerformanceService.cs
+        AcademicRankingService.cs
         AccountCleanupService.cs
         AuthService.cs
         BackupSchedulerService.cs
@@ -183,6 +188,7 @@ C:\Users\tinh8\Documents\Project\API
         GradeLevelService.cs
         GradeService.cs
         IAcademicPerformanceService.cs
+        IAcademicRankingService.cs
         IAuthService.cs
         IBackupService.cs
         IClassAssignmentService.cs
