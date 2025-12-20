@@ -3,6 +3,7 @@ using System;
 using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251220061449_Avarager")]
+    partial class Avarager
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -760,14 +763,25 @@ namespace API.Migrations
                         .HasColumnType("character varying(3)")
                         .HasColumnName("SemesterId");
 
-                    b.Property<decimal?>("AverageSemester")
+                    b.Property<decimal>("Average15Min")
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("Average15Min");
+
+                    b.Property<decimal>("Average45Min")
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("Average45Min");
+
+                    b.Property<decimal>("AverageOral")
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("AverageOral");
+
+                    b.Property<decimal>("AverageSemester")
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("AverageSemester");
 
-                    b.Property<string>("CommentResult")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("CommentResult");
+                    b.Property<decimal>("ExamScore")
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("ExamScore");
 
                     b.HasKey("StudentId", "ClassId", "SchoolYearId", "SubjectId", "SemesterId");
 

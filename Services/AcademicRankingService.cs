@@ -33,30 +33,59 @@ public class AcademicRankingService : IAcademicRankingService
                        g.IsComment)
             .ToListAsync();
 
-        return CalculateAcademicPerformanceRanking(subjectResults, grades);
+        return await CalculateAcademicPerformanceRanking(subjectResults, grades);
     }
 
     public async Task<string> CalculateYearAcademicPerformanceAsync(
         string studentId, string classId, string schoolYearId)
     {
-        // For year calculation, we need to get average of both semesters
+        // Get semesters with coefficients
+        var semester1 = await _context.Semesters.FirstOrDefaultAsync(s => s.SemesterId == "HK1");
+        var semester2 = await _context.Semesters.FirstOrDefaultAsync(s => s.SemesterId == "HK2");
+
+        if (semester1 == null || semester2 == null)
+            return "";
+
         // Get subject results for both semesters
-        var subjectResults = await _context.StudentSubjectResults
+        var allSubjectResults = await _context.StudentSubjectResults
             .Where(ssr => ssr.StudentId == studentId &&
                          ssr.ClassId == classId &&
                          ssr.SchoolYearId == schoolYearId)
-            .GroupBy(ssr => ssr.SubjectId)
-            .Select(g => new StudentSubjectResult
-            {
-                StudentId = studentId,
-                ClassId = classId,
-                SchoolYearId = schoolYearId,
-                SubjectId = g.Key,
-                SemesterId = "", // Not used for year average
-                // Calculate year average as (sem1 + sem2*2) / 3
-                AverageSemester = g.Average(s => s.AverageSemester)
-            })
             .ToListAsync();
+
+        // Group by subject and calculate year average
+        var subjectsBySubjectId = allSubjectResults
+            .GroupBy(ssr => ssr.SubjectId)
+            .ToList();
+
+        var yearAverages = new List<StudentSubjectResult>();
+
+        foreach (var subjectGroup in subjectsBySubjectId)
+        {
+            var hk1 = subjectGroup.FirstOrDefault(s => s.SemesterId == "HK1");
+            var hk2 = subjectGroup.FirstOrDefault(s => s.SemesterId == "HK2");
+
+            // According to rules, need both semester averages AND year average to meet thresholds
+            // Year average = (HK1 * coef1 + HK2 * coef2) / (coef1 + coef2)
+            // Only calculate for numeric subjects (skip comment-based)
+            if (hk1 != null && hk2 != null &&
+                hk1.AverageSemester.HasValue && hk2.AverageSemester.HasValue)
+            {
+                var totalCoef = semester1.Coefficient + semester2.Coefficient;
+                var yearAvg = (hk1.AverageSemester.Value * semester1.Coefficient +
+                              hk2.AverageSemester.Value * semester2.Coefficient) / totalCoef;
+
+                yearAverages.Add(new StudentSubjectResult
+                {
+                    StudentId = studentId,
+                    ClassId = classId,
+                    SchoolYearId = schoolYearId,
+                    SubjectId = subjectGroup.Key,
+                    SemesterId = "",
+                    AverageSemester = yearAvg
+                });
+            }
+        }
 
         // Get comment-based grades (check if any subject has "Chưa đạt" in either semester)
         var commentGrades = await _context.Grades
@@ -66,7 +95,7 @@ public class AcademicRankingService : IAcademicRankingService
                        g.IsComment)
             .ToListAsync();
 
-        return CalculateAcademicPerformanceRanking(subjectResults, commentGrades);
+        return await CalculateAcademicPerformanceRanking(yearAverages, commentGrades);
     }
 
     public async Task<string> CalculateYearResultTitleAsync(
@@ -92,15 +121,42 @@ public class AcademicRankingService : IAcademicRankingService
             return "";
 
         // Get subject results for year to check for 9.0+ subjects
-        var subjectResults = await _context.StudentSubjectResults
+        // Need to calculate weighted year average for each subject
+        var semester1 = await _context.Semesters.FirstOrDefaultAsync(s => s.SemesterId == "HK1");
+        var semester2 = await _context.Semesters.FirstOrDefaultAsync(s => s.SemesterId == "HK2");
+
+        if (semester1 == null || semester2 == null)
+            return "";
+
+        var allSubjectResults = await _context.StudentSubjectResults
             .Where(ssr => ssr.StudentId == studentId &&
                          ssr.ClassId == classId &&
                          ssr.SchoolYearId == schoolYearId)
-            .GroupBy(ssr => ssr.SubjectId)
-            .Select(g => g.Average(s => s.AverageSemester))
             .ToListAsync();
 
-        int subjectsAbove9 = subjectResults.Count(avg => avg >= 9.0m);
+        var subjectsBySubjectId = allSubjectResults
+            .GroupBy(ssr => ssr.SubjectId)
+            .ToList();
+
+        var yearAverages = new List<decimal>();
+
+        foreach (var subjectGroup in subjectsBySubjectId)
+        {
+            var hk1 = subjectGroup.FirstOrDefault(s => s.SemesterId == "HK1");
+            var hk2 = subjectGroup.FirstOrDefault(s => s.SemesterId == "HK2");
+
+            // Only calculate year average for numeric subjects (skip comment-based)
+            if (hk1 != null && hk2 != null &&
+                hk1.AverageSemester.HasValue && hk2.AverageSemester.HasValue)
+            {
+                var totalCoef = semester1.Coefficient + semester2.Coefficient;
+                var yearAvg = (hk1.AverageSemester.Value * semester1.Coefficient +
+                              hk2.AverageSemester.Value * semester2.Coefficient) / totalCoef;
+                yearAverages.Add(yearAvg);
+            }
+        }
+
+        int subjectsAbove9 = yearAverages.Count(avg => avg >= 9.0m);
 
         // Apply rules:
         // "Học sinh Xuất sắc": Conduct Tốt, Academic Tốt, at least 6 subjects >= 9.0
@@ -179,7 +235,7 @@ public class AcademicRankingService : IAcademicRankingService
         }
     }
 
-    private string CalculateAcademicPerformanceRanking(
+    private async Task<string> CalculateAcademicPerformanceRanking(
         List<StudentSubjectResult> subjectResults,
         List<Grade> commentGrades)
     {
@@ -189,8 +245,11 @@ public class AcademicRankingService : IAcademicRankingService
         bool allCommentsPass = commentFailCount == 0;
         bool atMostOneCommentFail = commentFailCount <= 1;
 
-        // Get score-based subject averages
-        var scoreAverages = subjectResults.Select(sr => sr.AverageSemester).ToList();
+        // Get score-based subject averages (filter out comment-based subjects that have null averages)
+        var scoreAverages = subjectResults
+            .Where(sr => sr.AverageSemester.HasValue)
+            .Select(sr => sr.AverageSemester!.Value)
+            .ToList();
         int totalScoreSubjects = scoreAverages.Count;
 
         if (totalScoreSubjects == 0 && commentGrades.Count == 0)
@@ -212,14 +271,14 @@ public class AcademicRankingService : IAcademicRankingService
         if (allCommentsPass && allScoresAbove6_5 &&
             (totalScoreSubjects < 6 || subjectsAbove8 >= 6))
         {
-            return GetAcademicPerformanceId("Tốt").Result;
+            return await GetAcademicPerformanceId("Tốt");
         }
 
         // b) Khá: All comments Đạt, all scores >= 5.0, at least 6 scores >= 6.5 (if 6+ subjects exist)
         if (allCommentsPass && allScoresAbove5 &&
             (totalScoreSubjects < 6 || subjectsAbove6_5 >= 6))
         {
-            return GetAcademicPerformanceId("Khá").Result;
+            return await GetAcademicPerformanceId("Khá");
         }
 
         // c) Đạt: At most 1 comment fail, at least 6 scores >= 5.0 (or all if < 6), no score < 3.5
@@ -227,11 +286,11 @@ public class AcademicRankingService : IAcademicRankingService
             (totalScoreSubjects < 6 ? subjectsAbove5 == totalScoreSubjects : subjectsAbove5 >= 6) &&
             subjectsBelow3_5 == 0)
         {
-            return GetAcademicPerformanceId("Đạt").Result;
+            return await GetAcademicPerformanceId("Đạt");
         }
 
         // d) Chưa đạt: All other cases
-        return GetAcademicPerformanceId("Chưa đạt").Result;
+        return await GetAcademicPerformanceId("Chưa đạt");
     }
 
     private async Task<string> GetAcademicPerformanceId(string name)

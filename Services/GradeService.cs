@@ -12,19 +12,22 @@ public class GradeService : IGradeService
     private readonly IClassAssignmentRepository _classAssignmentRepository;
     private readonly IGradeTypeRepository _gradeTypeRepository;
     private readonly ISemesterRepository _semesterRepository;
+    private readonly IStudentSubjectResultService _studentSubjectResultService;
 
     public GradeService(
         IGradeRepository gradeRepository,
         ITeachingAssignmentRepository teachingAssignmentRepository,
         IClassAssignmentRepository classAssignmentRepository,
         IGradeTypeRepository gradeTypeRepository,
-        ISemesterRepository semesterRepository)
+        ISemesterRepository semesterRepository,
+        IStudentSubjectResultService studentSubjectResultService)
     {
         _gradeRepository = gradeRepository;
         _teachingAssignmentRepository = teachingAssignmentRepository;
         _classAssignmentRepository = classAssignmentRepository;
         _gradeTypeRepository = gradeTypeRepository;
         _semesterRepository = semesterRepository;
+        _studentSubjectResultService = studentSubjectResultService;
     }
 
     public async Task<IEnumerable<TeacherClassSubjectDto>> GetTeacherClassSubjectsAsync(string teacherId)
@@ -114,6 +117,22 @@ public class GradeService : IGradeService
 
         var created = await _gradeRepository.AddAsync(grade);
 
+        // Automatically calculate and save results after grade is created
+        await _studentSubjectResultService.CalculateAndSaveCompleteSemesterAsync(
+            created.StudentId, created.ClassId, created.SchoolYearId, created.SemesterId);
+
+        // Try to calculate year summary (will only succeed if both semesters have data)
+        try
+        {
+            await _studentSubjectResultService.CalculateAndSaveYearSummaryAsync(
+                created.StudentId, created.ClassId, created.SchoolYearId);
+        }
+        catch
+        {
+            // Year summary calculation failed (likely missing data from other semester)
+            // This is expected and can be ignored
+        }
+
         return new GradeDto
         {
             RowNumber = created.RowNumber,
@@ -142,6 +161,22 @@ public class GradeService : IGradeService
         grade.Comment = updateGradeDto.Comment;
         await _gradeRepository.UpdateAsync(grade);
 
+        // Automatically recalculate results after grade is updated
+        await _studentSubjectResultService.CalculateAndSaveCompleteSemesterAsync(
+            grade.StudentId, grade.ClassId, grade.SchoolYearId, grade.SemesterId);
+
+        // Try to calculate year summary (will only succeed if both semesters have data)
+        try
+        {
+            await _studentSubjectResultService.CalculateAndSaveYearSummaryAsync(
+                grade.StudentId, grade.ClassId, grade.SchoolYearId);
+        }
+        catch
+        {
+            // Year summary calculation failed (likely missing data from other semester)
+            // This is expected and can be ignored
+        }
+
         return new GradeDto
         {
             RowNumber = grade.RowNumber,
@@ -165,7 +200,29 @@ public class GradeService : IGradeService
             throw new KeyNotFoundException("Không tìm thấy điểm");
         }
 
+        // Save grade info before deleting
+        var studentId = grade.StudentId;
+        var classId = grade.ClassId;
+        var schoolYearId = grade.SchoolYearId;
+        var semesterId = grade.SemesterId;
+
         await _gradeRepository.DeleteAsync(rowNumber);
+
+        // Recalculate results after grade is deleted
+        await _studentSubjectResultService.CalculateAndSaveCompleteSemesterAsync(
+            studentId, classId, schoolYearId, semesterId);
+
+        // Try to calculate year summary (will only succeed if both semesters have data)
+        try
+        {
+            await _studentSubjectResultService.CalculateAndSaveYearSummaryAsync(
+                studentId, classId, schoolYearId);
+        }
+        catch
+        {
+            // Year summary calculation failed (likely missing data from other semester)
+            // This is expected and can be ignored
+        }
     }
 
     public async Task<IEnumerable<StudentGradeViewDto>> GetStudentGradesViewAsync(string classId, string subjectId, string schoolYearId)

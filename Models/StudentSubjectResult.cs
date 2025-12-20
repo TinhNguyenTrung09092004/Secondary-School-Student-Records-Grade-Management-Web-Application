@@ -26,20 +26,12 @@ public class StudentSubjectResult
     [StringLength(3)]
     public string SemesterId { get; set; } = null!;
 
-    [Column("AverageOral", TypeName = "numeric(10,2)")]
-    public decimal AverageOral { get; set; }
-
-    [Column("Average15Min", TypeName = "numeric(10,2)")]
-    public decimal Average15Min { get; set; }
-
-    [Column("Average45Min", TypeName = "numeric(10,2)")]
-    public decimal Average45Min { get; set; }
-
-    [Column("ExamScore", TypeName = "numeric(10,2)")]
-    public decimal ExamScore { get; set; }
-
     [Column("AverageSemester", TypeName = "numeric(10,2)")]
-    public decimal AverageSemester { get; set; }
+    public decimal? AverageSemester { get; set; }
+
+    [Column("CommentResult")]
+    [StringLength(10)]
+    public string? CommentResult { get; set; }
 
     [ForeignKey("StudentId")]
     public Student Student { get; set; } = null!;

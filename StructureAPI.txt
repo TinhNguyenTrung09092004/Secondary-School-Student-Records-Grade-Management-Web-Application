@@ -34,6 +34,7 @@ C:\Users\tinh8\Documents\Project\API
 |       SchoolYearController.cs
 |       SemesterController.cs
 |       StudentController.cs
+|       StudentSubjectResultController.cs
 |       SubjectController.cs
 |       TeacherController.cs
 |       TeachingAssignmentController.cs
@@ -81,8 +82,28 @@ C:\Users\tinh8\Documents\Project\API
 |       ExceptionHandlingMiddleware.cs
 |
 +---Migrations
+|       20251208062903_InitialCreate.cs
+|       20251208062903_InitialCreate.Designer.cs
+|       20251211064645_AddDepartment.cs
+|       20251211064645_AddDepartment.Designer.cs
+|       20251211164713_IdTeacher.cs
+|       20251211164713_IdTeacher.Designer.cs
+|       20251211165739_MakeTeacherIdNullableAndAllowClassIdUpdate.cs
+|       20251211165739_MakeTeacherIdNullableAndAllowClassIdUpdate.Designer.cs
+|       20251211170550_MakeTeacherIdNullable.cs
+|       20251211170550_MakeTeacherIdNullable.Designer.cs
+|       20251212160554_AddCommentSupportToGrade.cs
+|       20251212160554_AddCommentSupportToGrade.Designer.cs
+|       20251216033743_Face.cs
+|       20251216033743_Face.Designer.cs
+|       20251218113734_AddStudentSemesterResult.cs
+|       20251218113734_AddStudentSemesterResult.Designer.cs
 |       20251219043842_RemoveScoreColumnsFromAcademicPerformance.cs
 |       20251219043842_RemoveScoreColumnsFromAcademicPerformance.Designer.cs
+|       20251220061449_Avarager.cs
+|       20251220061449_Avarager.Designer.cs
+|       20251220064317_UpdateStudentSubjectResultTable.cs
+|       20251220064317_UpdateStudentSubjectResultTable.Designer.cs
 |       ApplicationDbContextModelSnapshot.cs
 |
 +---Models
@@ -115,6 +136,45 @@ C:\Users\tinh8\Documents\Project\API
 |       TeachingAssignment.cs
 |
 +---obj
+|   |   API.csproj.EntityFrameworkCore.targets
+|   |   API.csproj.nuget.dgspec.json
+|   |   API.csproj.nuget.g.props
+|   |   API.csproj.nuget.g.targets
+|   |   project.assets.json
+|   |   project.nuget.cache
+|   |
+|   \---Debug
+|       \---net8.0
+|           |   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+|           |   API.AssemblyInfo.cs
+|           |   API.AssemblyInfoInputs.cache
+|           |   API.assets.cache
+|           |   API.csproj.AssemblyReference.cache
+|           |   API.csproj.CoreCompileInputs.cache
+|           |   API.csproj.FileListAbsolute.txt
+|           |   API.csproj.Up2Date
+|           |   API.dll
+|           |   API.GeneratedMSBuildEditorConfig.editorconfig
+|           |   API.genruntimeconfig.cache
+|           |   API.GlobalUsings.g.cs
+|           |   API.MvcApplicationPartsAssemblyInfo.cache
+|           |   API.MvcApplicationPartsAssemblyInfo.cs
+|           |   API.pdb
+|           |   API.sourcelink.json
+|           |   apphost.exe
+|           |   staticwebassets.build.json
+|           |
+|           +---ref
+|           |       API.dll
+|           |
+|           +---refint
+|           |       API.dll
+|           |
+|           \---staticwebassets
+|                   msbuild.build.API.props
+|                   msbuild.buildMultiTargeting.API.props
+|                   msbuild.buildTransitive.API.props
+|
 +---Properties
 |       launchSettings.json
 |
@@ -152,6 +212,7 @@ C:\Users\tinh8\Documents\Project\API
 |       ISchoolYearRepository.cs
 |       ISemesterRepository.cs
 |       IStudentRepository.cs
+|       IStudentSemesterResultRepository.cs
 |       IStudentSubjectResultRepository.cs
 |       IStudentYearResultRepository.cs
 |       ISubjectRepository.cs
@@ -164,6 +225,7 @@ C:\Users\tinh8\Documents\Project\API
 |       SchoolYearRepository.cs
 |       SemesterRepository.cs
 |       StudentRepository.cs
+|       StudentSemesterResultRepository.cs
 |       StudentSubjectResultRepository.cs
 |       StudentYearResultRepository.cs
 |       SubjectRepository.cs
@@ -207,6 +269,7 @@ C:\Users\tinh8\Documents\Project\API
         ISchoolYearService.cs
         ISemesterService.cs
         IStudentService.cs
+        IStudentSubjectResultService.cs
         ISubjectService.cs
         ITeacherService.cs
         ITeachingAssignmentService.cs
@@ -217,6 +280,7 @@ C:\Users\tinh8\Documents\Project\API
         SchoolYearService.cs
         SemesterService.cs
         StudentService.cs
+        StudentSubjectResultService.cs
         SubjectService.cs
         TeacherService.cs
         TeachingAssignmentService.cs

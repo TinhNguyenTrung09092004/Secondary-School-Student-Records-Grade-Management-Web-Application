@@ -85,6 +85,7 @@ builder.Services.AddScoped<ISemesterService, SemesterService>();
 builder.Services.AddScoped<IAcademicPerformanceService, AcademicPerformanceService>();
 builder.Services.AddScoped<IResultService, ResultService>();
 builder.Services.AddScoped<IAcademicRankingService, AcademicRankingService>();
+builder.Services.AddScoped<IStudentSubjectResultService, StudentSubjectResultService>();
 
 // Repository registrations - String key repositories
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
@@ -111,6 +112,7 @@ builder.Services.AddScoped<IBackupScheduleRepository, BackupScheduleRepository>(
 // Repository registrations - Composite key repositories
 builder.Services.AddScoped<IClassAssignmentRepository, ClassAssignmentRepository>();
 builder.Services.AddScoped<IStudentSubjectResultRepository, StudentSubjectResultRepository>();
+builder.Services.AddScoped<IStudentSemesterResultRepository, StudentSemesterResultRepository>();
 builder.Services.AddScoped<IStudentYearResultRepository, StudentYearResultRepository>();
 builder.Services.AddScoped<IClassSubjectResultRepository, ClassSubjectResultRepository>();
 builder.Services.AddScoped<IClassSemesterResultRepository, ClassSemesterResultRepository>();
