@@ -76,6 +76,83 @@ public class PrincipalDashboardController : ControllerBase
     }
 
     /// <summary>
+    /// Get detailed grades for a specific student and subject
+    /// </summary>
+    [HttpGet("subject-details/{studentId}/{classId}/{schoolYearId}/{subjectId}")]
+    public async Task<IActionResult> GetSubjectDetailedGrades(
+        string studentId, string classId, string schoolYearId, string subjectId)
+    {
+        try
+        {
+            var student = await _context.Students
+                .FirstOrDefaultAsync(s => s.StudentId == studentId);
+
+            if (student == null)
+                return NotFound(new { message = "Không tìm thấy học sinh" });
+
+            var subject = await _context.Subjects
+                .FirstOrDefaultAsync(s => s.SubjectId == subjectId);
+
+            if (subject == null)
+                return NotFound(new { message = "Không tìm thấy môn học" });
+
+            var semesters = await _context.Semesters.ToListAsync();
+            var semesterDetails = new List<SemesterDetailedGradesDto>();
+
+            foreach (var semester in semesters)
+            {
+                var grades = await _context.Grades
+                    .Where(g => g.StudentId == studentId &&
+                               g.ClassId == classId &&
+                               g.SchoolYearId == schoolYearId &&
+                               g.SubjectId == subjectId &&
+                               g.SemesterId == semester.SemesterId)
+                    .Include(g => g.GradeType)
+                    .OrderBy(g => g.GradeType.GradeTypeName)
+                    .ToListAsync();
+
+                var subjectResult = await _context.StudentSubjectResults
+                    .FirstOrDefaultAsync(ssr => ssr.StudentId == studentId &&
+                                               ssr.ClassId == classId &&
+                                               ssr.SchoolYearId == schoolYearId &&
+                                               ssr.SubjectId == subjectId &&
+                                               ssr.SemesterId == semester.SemesterId);
+
+                semesterDetails.Add(new SemesterDetailedGradesDto
+                {
+                    SemesterId = semester.SemesterId,
+                    SemesterName = semester.SemesterName,
+                    Average = subjectResult?.AverageSemester,
+                    Grades = grades.Select(g => new GradeEntryDto
+                    {
+                        GradeTypeId = g.GradeTypeId,
+                        GradeTypeName = g.GradeType.GradeTypeName,
+                        Coefficient = g.GradeType.Coefficient,
+                        Score = g.Score,
+                        IsComment = g.IsComment,
+                        Comment = g.Comment
+                    }).ToList()
+                });
+            }
+
+            var result = new SubjectDetailedGradesDto
+            {
+                StudentId = studentId,
+                StudentName = student.FullName,
+                SubjectId = subjectId,
+                SubjectName = subject.SubjectName,
+                Semesters = semesterDetails
+            };
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
     /// Recalculate all rankings for a school year
     /// </summary>
     [HttpPost("recalculate-all/{schoolYearId}")]
@@ -194,8 +271,7 @@ public class PrincipalDashboardController : ControllerBase
                                     .FirstOrDefault(),
                 Semester2Average = g.Where(s => s.SemesterId == "HK2")
                                     .Select(s => (decimal?)s.AverageSemester)
-                                    .FirstOrDefault(),
-                YearAverage = g.Average(s => s.AverageSemester)
+                                    .FirstOrDefault()
             })
             .ToListAsync();
 

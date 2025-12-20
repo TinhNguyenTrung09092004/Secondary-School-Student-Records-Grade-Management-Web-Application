@@ -10,8 +10,12 @@ using API.Middleware;
 using API.Models;
 using API.Repositories;
 using DotNetEnv;
+using OfficeOpenXml;
 
 Env.Load();
+
+// Configure EPPlus license for noncommercial use
+ExcelPackage.License.SetNonCommercialOrganization("School Management System");
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -45,5 +45,31 @@ public class SubjectResultDto
     public string SubjectName { get; set; } = null!;
     public decimal? Semester1Average { get; set; }
     public decimal? Semester2Average { get; set; }
-    public decimal? YearAverage { get; set; }
+}
+
+public class SubjectDetailedGradesDto
+{
+    public string StudentId { get; set; } = null!;
+    public string StudentName { get; set; } = null!;
+    public string SubjectId { get; set; } = null!;
+    public string SubjectName { get; set; } = null!;
+    public List<SemesterDetailedGradesDto> Semesters { get; set; } = new();
+}
+
+public class SemesterDetailedGradesDto
+{
+    public string SemesterId { get; set; } = null!;
+    public string SemesterName { get; set; } = null!;
+    public decimal? Average { get; set; }
+    public List<GradeEntryDto> Grades { get; set; } = new();
+}
+
+public class GradeEntryDto
+{
+    public string GradeTypeId { get; set; } = null!;
+    public string GradeTypeName { get; set; } = null!;
+    public int Coefficient { get; set; }
+    public decimal? Score { get; set; }
+    public bool IsComment { get; set; }
+    public string? Comment { get; set; }
 }
