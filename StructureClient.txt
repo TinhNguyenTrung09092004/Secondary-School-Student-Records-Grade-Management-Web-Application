@@ -1,0 +1,238 @@
+Angular Version 19.2.19
+C:\Users\tinh8\Documents\Project\client\src
+|   index.html
+|   main.ts
+|   styles.css
+|   
++---app
+|   |   app.component.css
+|   |   app.component.html
+|   |   app.component.spec.ts
+|   |   app.component.ts
+|   |   app.config.ts
+|   |   app.routes.ts
+|   |   
+|   +---components
+|   |   +---academic
+|   |   |   +---academic-performance-management
+|   |   |   |       academic-performance-management.component.css
+|   |   |   |       academic-performance-management.component.html
+|   |   |   |       academic-performance-management.component.ts
+|   |   |   |       
+|   |   |   +---class-assignment
+|   |   |   |       class-assignment.component.css
+|   |   |   |       class-assignment.component.html
+|   |   |   |       class-assignment.component.ts
+|   |   |   |
+|   |   |   +---class-management
+|   |   |   |       class-management.component.css
+|   |   |   |       class-management.component.html
+|   |   |   |       class-management.component.ts
+|   |   |   |
+|   |   |   +---conduct-management
+|   |   |   |       conduct-management.component.css
+|   |   |   |       conduct-management.component.html
+|   |   |   |       conduct-management.component.ts
+|   |   |   |
+|   |   |   +---department-management
+|   |   |   |       department-management.component.html
+|   |   |   |       department-management.component.ts
+|   |   |   |
+|   |   |   +---ethnicity-management
+|   |   |   |       ethnicity-management.component.html
+|   |   |   |       ethnicity-management.component.ts
+|   |   |   |
+|   |   |   +---grade-level-management
+|   |   |   |       grade-level-management.component.css
+|   |   |   |       grade-level-management.component.html
+|   |   |   |       grade-level-management.component.ts
+|   |   |   |
+|   |   |   +---grade-type-management
+|   |   |   |       grade-type-management.component.css
+|   |   |   |       grade-type-management.component.html
+|   |   |   |       grade-type-management.component.ts
+|   |   |   |
+|   |   |   +---occupation-management
+|   |   |   |       occupation-management.component.css
+|   |   |   |       occupation-management.component.html
+|   |   |   |       occupation-management.component.ts
+|   |   |   |
+|   |   |   +---religion-management
+|   |   |   |       religion-management.component.css
+|   |   |   |       religion-management.component.html
+|   |   |   |       religion-management.component.ts
+|   |   |   |
+|   |   |   +---result-management
+|   |   |   |       result-management.component.css
+|   |   |   |       result-management.component.html
+|   |   |   |       result-management.component.ts
+|   |   |   |
+|   |   |   +---school-year-management
+|   |   |   |       school-year-management.component.css
+|   |   |   |       school-year-management.component.html
+|   |   |   |       school-year-management.component.ts
+|   |   |   |
+|   |   |   +---semester-management
+|   |   |   |       semester-management.component.css
+|   |   |   |       semester-management.component.html
+|   |   |   |       semester-management.component.ts
+|   |   |   |
+|   |   |   +---student-management
+|   |   |   |       student-management.component.css
+|   |   |   |       student-management.component.html
+|   |   |   |       student-management.component.ts
+|   |   |   |
+|   |   |   \---subject-management
+|   |   |           subject-management.component.css
+|   |   |           subject-management.component.html
+|   |   |           subject-management.component.ts
+|   |   |
+|   |   +---admin
+|   |   |   +---backup
+|   |   |   |       backup.component.css
+|   |   |   |       backup.component.html
+|   |   |   |       backup.component.ts
+|   |   |   |
+|   |   |   \---user-management
+|   |   |           user-management.component.html
+|   |   |           user-management.component.ts
+|   |   |
+|   |   +---face-enrollment
+|   |   |       face-enrollment.component.css
+|   |   |       face-enrollment.component.html
+|   |   |       face-enrollment.component.ts
+|   |   |
+|   |   +---face-login
+|   |   |       face-login.component.css
+|   |   |       face-login.component.html
+|   |   |       face-login.component.ts
+|   |   |
+|   |   +---forgot-password
+|   |   |       forgot-password.component.html
+|   |   |       forgot-password.component.ts
+|   |   |
+|   |   +---layouts
+|   |   |   +---academic-layout
+|   |   |   |       academic-layout.component.css
+|   |   |   |       academic-layout.component.html
+|   |   |   |       academic-layout.component.ts
+|   |   |   |
+|   |   |   +---admin-layout
+|   |   |   |       admin-layout.component.css
+|   |   |   |       admin-layout.component.html
+|   |   |   |       admin-layout.component.ts
+|   |   |   |
+|   |   |   \---teacher-layout
+|   |   |           teacher-layout.component.html
+|   |   |           teacher-layout.component.ts
+|   |   |
+|   |   +---login
+|   |   |       login.component.html
+|   |   |       login.component.spec.ts
+|   |   |       login.component.ts
+|   |   |
+|   |   +---principal
+|   |   |   \---principal-dashboard
+|   |   |           principal-dashboard.component.css
+|   |   |           principal-dashboard.component.html
+|   |   |           principal-dashboard.component.ts
+|   |   |
+|   |   +---reset-password
+|   |   |       reset-password.component.html
+|   |   |       reset-password.component.ts
+|   |   |
+|   |   +---teacher
+|   |   |   +---conduct-grading
+|   |   |   |       conduct-grading.component.css
+|   |   |   |       conduct-grading.component.html
+|   |   |   |       conduct-grading.component.ts
+|   |   |   |
+|   |   |   +---grade-entry
+|   |   |   |       grade-entry.component.css
+|   |   |   |       grade-entry.component.html
+|   |   |   |       grade-entry.component.ts
+|   |   |   |
+|   |   |   +---grade-view
+|   |   |   |       grade-view.component.css
+|   |   |   |       grade-view.component.html
+|   |   |   |       grade-view.component.ts
+|   |   |   |
+|   |   |   +---teacher-profile
+|   |   |   |       teacher-profile.component.css
+|   |   |   |       teacher-profile.component.html
+|   |   |   |       teacher-profile.component.ts
+|   |   |   |
+|   |   |   \---teaching-assignment
+|   |   |           teaching-assignment.component.css
+|   |   |           teaching-assignment.component.html
+|   |   |           teaching-assignment.component.ts
+|   |   |
+|   |   \---token-validator
+|   |           token-validator.component.html
+|   |           token-validator.component.ts
+|   |
+|   +---core
+|   |       constants.ts
+|   |
+|   +---guards
+|   |       auth.guard.ts
+|   |       role.guard.ts
+|   |
+|   +---interceptors
+|   |       auth.interceptor.ts
+|   |       error.interceptor.ts
+|   |
+|   +---models
+|   |       academic-performance.model.ts
+|   |       auth.model.ts
+|   |       backup.model.ts
+|   |       class.model.ts
+|   |       classassignment.model.ts
+|   |       conduct-grading.model.ts
+|   |       conduct.model.ts
+|   |       department.model.ts
+|   |       ethnicity.model.ts
+|   |       grade.model.ts
+|   |       gradelevel.model.ts
+|   |       hocsinh.model.ts
+|   |       index.ts
+|   |       occupation.model.ts
+|   |       religion.model.ts
+|   |       result.model.ts
+|   |       schoolyear.model.ts
+|   |       semester.model.ts
+|   |       subject.model.ts
+|   |       teacher.model.ts
+|   |       teachingassignment.model.ts
+|   |       user-management.model.ts
+|   |
+|   \---services
+|           academic-performance.service.ts
+|           academic-ranking.service.ts
+|           auth.service.spec.ts
+|           auth.service.ts
+|           backup.service.ts
+|           class.service.ts
+|           classassignment.service.ts
+|           conduct-grading.service.ts
+|           conduct.service.ts
+|           department.service.ts
+|           ethnicity.service.ts
+|           face-recognition.service.ts
+|           grade.service.ts
+|           gradelevel.service.ts
+|           occupation.service.ts
+|           principal-dashboard.service.ts
+|           religion.service.ts
+|           result.service.ts
+|           schoolyear.service.ts
+|           semester.service.ts
+|           student.service.ts
+|           subject.service.ts
+|           teacher.service.ts
+|           teachingassignment.service.ts
+|           user-management.service.ts
+|
+\---environments
+        environment.prod.ts
+        environment.ts
