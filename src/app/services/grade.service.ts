@@ -85,4 +85,28 @@ export class GradeService {
 
     return this.http.get<StudentGradeViewDto[]>(`${this.apiUrl}/view`, { params });
   }
+
+  importGradesFromExcel(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/import-excel`, formData);
+  }
+
+  exportGrades(
+    classId: string,
+    subjectId: string,
+    semesterId: string,
+    schoolYearId: string,
+    format: string
+  ): Observable<Blob> {
+    const params = new HttpParams()
+      .set('classId', classId)
+      .set('subjectId', subjectId)
+      .set('semesterId', semesterId)
+      .set('schoolYearId', schoolYearId)
+      .set('format', format);
+
+    return this.http.get(`${this.apiUrl}/export`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 }

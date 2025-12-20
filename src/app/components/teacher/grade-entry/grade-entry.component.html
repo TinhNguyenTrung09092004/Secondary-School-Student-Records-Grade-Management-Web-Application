@@ -1,11 +1,19 @@
 <h2>Nhập Điểm Học Sinh</h2>
 
-<div style="margin-bottom: 15px;">
+<div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
   <button (click)="toggleCommentMode()"
           style="padding: 8px 16px; background-color: #2196F3; color: white; border: none; cursor: pointer; border-radius: 4px;">
     {{ isCommentMode ? 'Chuyển sang Điểm Số (10)' : 'Chuyển sang Nhận Xét (Pass/Fail)' }}
   </button>
-  <span style="margin-left: 10px; font-weight: bold;">
+  <button (click)="openImportDialog()"
+          style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;">
+    📥 Import từ Excel
+  </button>
+  <button (click)="openExportDialog()"
+          style="padding: 8px 16px; background-color: #FF9800; color: white; border: none; cursor: pointer; border-radius: 4px;">
+    📤 Export
+  </button>
+  <span style="font-weight: bold;">
     Chế độ hiện tại: {{ isCommentMode ? 'Nhận Xét (Pass/Fail)' : 'Điểm Số (10)' }}
   </span>
 </div>
@@ -37,6 +45,29 @@
   </div>
 </div>
 
+<!-- Search box -->
+<div *ngIf="selectedClass && selectedSemester && studentGrades.length > 0" style="margin-bottom: 15px;">
+  <div style="display: flex; align-items: center; gap: 10px; max-width: 500px;">
+    <label style="font-weight: bold; white-space: nowrap;">Tìm kiếm:</label>
+    <div style="position: relative; flex: 1;">
+      <input type="text"
+             [(ngModel)]="searchQuery"
+             (input)="onSearchChange()"
+             placeholder="Nhập tên hoặc mã học sinh..."
+             style="width: 100%; padding: 8px 35px 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+      <button *ngIf="searchQuery"
+              (click)="clearSearch()"
+              style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #999; font-size: 18px; padding: 5px;"
+              title="Xóa tìm kiếm">
+        ×
+      </button>
+    </div>
+    <span *ngIf="searchQuery" style="color: #666; font-size: 14px;">
+      Tìm thấy: {{ filteredStudents.length }} / {{ studentGrades.length }}
+    </span>
+  </div>
+</div>
+
 <!-- Grade entry table -->
 <div *ngIf="selectedClass && selectedSemester && studentGrades.length > 0" style="overflow-x: auto;">
   <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 20px;">
@@ -55,8 +86,8 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let student of studentGrades; let i = index">
-        <td style="padding: 10px; text-align: center;">{{ i + 1 }}</td>
+      <tr *ngFor="let student of paginatedStudents; let i = index">
+        <td style="padding: 10px; text-align: center;">{{ startIndex + i + 1 }}</td>
         <td style="padding: 10px;">{{ student.studentName }}</td>
         <td *ngFor="let gradeType of gradeTypes"
             style="padding: 5px; text-align: center; position: relative;">
@@ -141,6 +172,50 @@
       </tr>
     </tbody>
   </table>
+
+  <!-- Pagination Controls -->
+  <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <label>Số dòng mỗi trang:</label>
+      <select (change)="onPageSizeChange($event)" [value]="pageSize" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+      <span style="color: #666;">
+        Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của {{ filteredStudents.length }} học sinh
+        <span *ngIf="searchQuery">({{ studentGrades.length }} tổng số)</span>
+      </span>
+    </div>
+
+    <div style="display: flex; gap: 5px; align-items: center;">
+      <button (click)="previousPage()"
+              [disabled]="currentPage === 1"
+              style="padding: 8px 12px; background-color: #2196F3; color: white; border: none; cursor: pointer; border-radius: 4px;"
+              [style.opacity]="currentPage === 1 ? '0.5' : '1'"
+              [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+        ‹ Trước
+      </button>
+
+      <button *ngFor="let page of getPageNumbers()"
+              (click)="goToPage(page)"
+              [style.background-color]="page === currentPage ? '#2196F3' : '#f0f0f0'"
+              [style.color]="page === currentPage ? 'white' : '#333'"
+              [style.font-weight]="page === currentPage ? 'bold' : 'normal'"
+              style="padding: 8px 12px; border: none; cursor: pointer; border-radius: 4px; min-width: 40px;">
+        {{ page }}
+      </button>
+
+      <button (click)="nextPage()"
+              [disabled]="currentPage === totalPages"
+              style="padding: 8px 12px; background-color: #2196F3; color: white; border: none; cursor: pointer; border-radius: 4px;"
+              [style.opacity]="currentPage === totalPages ? '0.5' : '1'"
+              [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+        Sau ›
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Empty state -->
@@ -155,4 +230,116 @@
 
 <div *ngIf="!selectedClass || !selectedSemester" style="margin-top: 20px; padding: 20px; background-color: #f9f9f9; text-align: center;">
   <p>Vui lòng chọn lớp, môn học và học kỳ để bắt đầu nhập điểm.</p>
+</div>
+
+<!-- Import Dialog -->
+<div *ngIf="showImportDialog" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+  <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%;">
+    <h3 style="margin-top: 0;">Import Điểm từ Excel</h3>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+        Loại điểm:
+      </label>
+      <div style="display: flex; gap: 15px;">
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="radio"
+                 [(ngModel)]="importScoreType"
+                 value="score"
+                 name="scoreType"
+                 style="margin-right: 5px;">
+          Điểm số (0-10)
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="radio"
+                 [(ngModel)]="importScoreType"
+                 value="comment"
+                 name="scoreType"
+                 style="margin-right: 5px;">
+          Nhận xét (Pass/Fail)
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; margin-bottom: 5px; font-weight: bold;">
+        Chọn file Excel:
+      </label>
+      <input type="file"
+             accept=".xlsx,.xls"
+             (change)="onFileSelected($event)"
+             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+      <small style="color: #666; display: block; margin-top: 5px;">
+        File Excel phải có cột: Mã HS, Loại Điểm (ID), Điểm/Nhận xét
+      </small>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button (click)="closeImportDialog()"
+              style="padding: 10px 20px; background-color: #999; color: white; border: none; cursor: pointer; border-radius: 4px;">
+        Hủy
+      </button>
+      <button (click)="importGrades()"
+              [disabled]="!importFile"
+              style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;"
+              [style.opacity]="!importFile ? '0.5' : '1'">
+        Import
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Export Dialog -->
+<div *ngIf="showExportDialog" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+  <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%;">
+    <h3 style="margin-top: 0;">Export Bảng Điểm</h3>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+        Chọn định dạng file:
+      </label>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+          <input type="radio"
+                 [(ngModel)]="exportFormat"
+                 value="excel"
+                 name="exportFormat"
+                 style="margin-right: 10px;">
+          <span style="font-size: 20px; margin-right: 10px;">📊</span>
+          <span>Excel (.xlsx)</span>
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+          <input type="radio"
+                 [(ngModel)]="exportFormat"
+                 value="word"
+                 name="exportFormat"
+                 style="margin-right: 10px;">
+          <span style="font-size: 20px; margin-right: 10px;">📄</span>
+          <span>Word (.docx)</span>
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+          <input type="radio"
+                 [(ngModel)]="exportFormat"
+                 value="pdf"
+                 name="exportFormat"
+                 style="margin-right: 10px;">
+          <span style="font-size: 20px; margin-right: 10px;">📕</span>
+          <span>PDF (.pdf)</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button (click)="closeExportDialog()"
+              style="padding: 10px 20px; background-color: #999; color: white; border: none; cursor: pointer; border-radius: 4px;">
+        Hủy
+      </button>
+      <button (click)="exportGrades()"
+              [disabled]="!exportFormat"
+              style="padding: 10px 20px; background-color: #FF9800; color: white; border: none; cursor: pointer; border-radius: 4px;"
+              [style.opacity]="!exportFormat ? '0.5' : '1'">
+        Export
+      </button>
+    </div>
+  </div>
 </div>

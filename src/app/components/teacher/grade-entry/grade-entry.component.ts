@@ -38,6 +38,19 @@ export class GradeEntryComponent implements OnInit {
   editingCell: { studentId: string; gradeTypeId: string } | null = null;
   tempScore: string = '';
   isCommentMode: boolean = false;
+  showImportDialog: boolean = false;
+  importFile: File | null = null;
+  importScoreType: 'score' | 'comment' = 'score';
+  showExportDialog: boolean = false;
+  exportFormat: string = '';
+
+  // Pagination
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 1;
+
+  // Search
+  searchQuery: string = '';
 
   ngOnInit(): void {
     this.loadData();
@@ -53,7 +66,8 @@ export class GradeEntryComponent implements OnInit {
       next: (data) => {
         this.teacherClasses = data.classes;
         this.semesters = data.semesters;
-        this.gradeTypes = data.gradeTypes;
+        // Sort grade types by coefficient (1, 2, 3)
+        this.gradeTypes = data.gradeTypes.sort((a, b) => a.coefficient - b.coefficient);
         this.loading = false;
       },
       error: (error) => {
@@ -98,6 +112,7 @@ export class GradeEntryComponent implements OnInit {
     }
 
     this.loading = true;
+    this.currentPage = 1; // Reset to first page when loading new data
     this.gradeService.getStudentGrades(
       this.selectedClass.classId,
       this.selectedClass.subjectId,
@@ -106,6 +121,7 @@ export class GradeEntryComponent implements OnInit {
     ).subscribe({
       next: (grades) => {
         this.studentGrades = grades;
+        this.updateTotalPages();
         this.loading = false;
       },
       error: (error) => {
@@ -322,5 +338,215 @@ export class GradeEntryComponent implements OnInit {
 
     // Mixed mode or incomplete data
     return '-';
+  }
+
+  openImportDialog(): void {
+    if (!this.selectedClass || !this.selectedSemester) {
+      this.showError('Vui lòng chọn lớp, môn học và học kỳ trước khi import');
+      return;
+    }
+    this.showImportDialog = true;
+    this.importFile = null;
+    this.importScoreType = 'score';
+  }
+
+  closeImportDialog(): void {
+    this.showImportDialog = false;
+    this.importFile = null;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.importFile = input.files[0];
+    }
+  }
+
+  async importGrades(): Promise<void> {
+    if (!this.importFile || !this.selectedClass || !this.selectedSemester) {
+      this.showError('Vui lòng chọn file để import');
+      return;
+    }
+
+    try {
+      this.loading = true;
+      const formData = new FormData();
+      formData.append('file', this.importFile);
+      formData.append('classId', this.selectedClass.classId);
+      formData.append('subjectId', this.selectedClass.subjectId);
+      formData.append('semesterId', this.selectedSemester.semesterId);
+      formData.append('schoolYearId', this.selectedClass.schoolYearId);
+      formData.append('isComment', this.importScoreType === 'comment' ? 'true' : 'false');
+
+      this.gradeService.importGradesFromExcel(formData).subscribe({
+        next: (result: any) => {
+          this.showSuccess(`Import thành công ${result.successCount} điểm`);
+          this.closeImportDialog();
+          this.loadStudentGrades();
+          this.loading = false;
+        },
+        error: (error) => {
+          this.showError(error.error?.message || 'Không thể import điểm');
+          this.loading = false;
+        }
+      });
+    } catch (error) {
+      this.showError('Lỗi khi đọc file Excel');
+      this.loading = false;
+    }
+  }
+
+  openExportDialog(): void {
+    if (!this.selectedClass || !this.selectedSemester) {
+      this.showError('Vui lòng chọn lớp, môn học và học kỳ trước khi export');
+      return;
+    }
+    this.showExportDialog = true;
+    this.exportFormat = '';
+  }
+
+  closeExportDialog(): void {
+    this.showExportDialog = false;
+    this.exportFormat = '';
+  }
+
+  exportGrades(): void {
+    if (!this.exportFormat || !this.selectedClass || !this.selectedSemester) {
+      this.showError('Vui lòng chọn định dạng file');
+      return;
+    }
+
+    this.loading = true;
+    this.gradeService.exportGrades(
+      this.selectedClass.classId,
+      this.selectedClass.subjectId,
+      this.selectedSemester.semesterId,
+      this.selectedClass.schoolYearId,
+      this.exportFormat
+    ).subscribe({
+      next: (blob: Blob) => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        // Set filename based on format
+        const extension = this.exportFormat === 'excel' ? 'xlsx' : this.exportFormat === 'word' ? 'docx' : 'pdf';
+        const filename = `Diem_${this.selectedClass?.classId}_${this.selectedClass?.subjectId}_${this.selectedSemester?.semesterId}.${extension}`;
+        link.download = filename;
+
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        this.showSuccess('Export thành công');
+        this.closeExportDialog();
+        this.loading = false;
+      },
+      error: (error) => {
+        this.showError(error.error?.message || 'Không thể export điểm');
+        this.loading = false;
+      }
+    });
+  }
+
+  // Pagination methods
+  get filteredStudents(): StudentGradeDto[] {
+    if (!this.searchQuery.trim()) {
+      return this.studentGrades;
+    }
+
+    const query = this.searchQuery.toLowerCase().trim();
+    return this.studentGrades.filter(student =>
+      student.studentId.toLowerCase().includes(query) ||
+      student.studentName.toLowerCase().includes(query)
+    );
+  }
+
+  get paginatedStudents(): StudentGradeDto[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    return this.filteredStudents.slice(startIndex, endIndex);
+  }
+
+  get startIndex(): number {
+    return (this.currentPage - 1) * this.pageSize;
+  }
+
+  get endIndex(): number {
+    return Math.min(this.startIndex + this.pageSize, this.filteredStudents.length);
+  }
+
+  updateTotalPages(): void {
+    this.totalPages = Math.ceil(this.filteredStudents.length / this.pageSize);
+    if (this.totalPages === 0) {
+      this.totalPages = 1;
+    }
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1; // Reset to first page when search changes
+    this.updateTotalPages();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.onSearchChange();
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pageSize = parseInt(select.value, 10);
+    this.currentPage = 1;
+    this.updateTotalPages();
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+
+    if (this.totalPages <= maxPagesToShow) {
+      // Show all pages if total pages is less than max
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show current page and surrounding pages
+      let startPage = Math.max(1, this.currentPage - 2);
+      let endPage = Math.min(this.totalPages, this.currentPage + 2);
+
+      // Adjust if at the beginning or end
+      if (this.currentPage <= 3) {
+        endPage = maxPagesToShow;
+      } else if (this.currentPage >= this.totalPages - 2) {
+        startPage = this.totalPages - maxPagesToShow + 1;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+
+    return pages;
   }
 }

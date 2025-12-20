@@ -18,7 +18,7 @@ C:\Users\tinh8\Documents\Project\client\src
 |   |   |   |       academic-performance-management.component.css
 |   |   |   |       academic-performance-management.component.html
 |   |   |   |       academic-performance-management.component.ts
-|   |   |   |       
+|   |   |   |
 |   |   |   +---class-assignment
 |   |   |   |       class-assignment.component.css
 |   |   |   |       class-assignment.component.html

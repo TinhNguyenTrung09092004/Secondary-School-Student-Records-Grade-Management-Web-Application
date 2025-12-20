@@ -1,104 +1,366 @@
-<h2>Bảng Điều Khiển Hiệu Trưởng</h2>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Bảng Điều Khiển Hiệu Trưởng</h1>
+    <div class="header-controls">
+      <select [(ngModel)]="selectedSchoolYearId" (change)="loadResults()" class="year-select">
+        <option *ngFor="let year of schoolYears" [value]="year.schoolYearId">
+          {{ year.schoolYearName }}
+        </option>
+      </select>
 
-<div style="margin-bottom: 20px;">
-  <label>Năm học:</label>
-  <select [(ngModel)]="selectedSchoolYearId" (change)="loadResults()" style="margin-left: 10px; margin-right: 20px;">
-    <option *ngFor="let year of schoolYears" [value]="year.id">{{ year.name }}</option>
-  </select>
+      <!-- View Toggle -->
+      <div class="view-toggle">
+        <button
+          [class.active]="viewMode === 'overview'"
+          (click)="switchView('overview')"
+          class="toggle-btn">
+          📊 Tổng Quan
+        </button>
+        <button
+          [class.active]="viewMode === 'details'"
+          (click)="switchView('details')"
+          class="toggle-btn">
+          📋 Chi Tiết Điểm
+        </button>
+      </div>
+    </div>
+  </div>
 
-  <label>Xem theo:</label>
-  <select [(ngModel)]="selectedView" style="margin-left: 10px; margin-right: 20px;">
-    <option value="semester1">Học kì 1</option>
-    <option value="semester2">Học kì 2</option>
-    <option value="year">Cả năm</option>
-  </select>
+  <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
 
-  <button (click)="recalculateAll()" style="margin-left: 20px;">Tính toán lại tất cả</button>
-</div>
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
 
-<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
-<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
-<p *ngIf="isLoading">Đang tải dữ liệu...</p>
+  <!-- OVERVIEW MODE - Dashboard with Charts -->
+  <div *ngIf="!isLoading && viewMode === 'overview' && stats.totalStudents > 0">
+    <!-- Summary Cards -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon">👨‍🎓</div>
+        <div class="stat-content">
+          <h3>{{ stats.totalStudents }}</h3>
+          <p>Tổng Số Học Sinh</p>
+        </div>
+      </div>
 
-<div *ngFor="let gradeLevel of gradeLevelResults" style="margin-bottom: 30px;">
-  <h3>{{ gradeLevel.gradeLevelName }}</h3>
+      <div class="stat-card success">
+        <div class="stat-icon">🏫</div>
+        <div class="stat-content">
+          <h3>{{ stats.totalClasses }}</h3>
+          <p>Tổng Số Lớp</p>
+        </div>
+      </div>
 
-  <div *ngFor="let class of gradeLevel.classes" style="margin-bottom: 20px;">
-    <h4>{{ class.className }}</h4>
+      <div class="stat-card warning">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <h3>{{ stats.averageScore.toFixed(2) }}</h3>
+          <p>Điểm Trung Bình</p>
+        </div>
+      </div>
 
-    <table border="1" style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr>
-          <th style="width: 40px;"></th>
-          <th>Tên học sinh</th>
-          <th>Điểm TB</th>
-          <th>Học lực</th>
-          <th>Hạnh kiểm</th>
-          <th *ngIf="selectedView === 'year'">Kết quả</th>
-        </tr>
-      </thead>
-      <tbody>
-        <ng-container *ngFor="let student of class.students">
-          <!-- Student row -->
-          <tr>
-            <td style="text-align: center;">
-              <button
-                (click)="toggleStudentDetails(student.studentId)"
-                style="border: none; background: none; cursor: pointer; font-size: 16px;">
-                {{ isStudentExpanded(student.studentId) ? '▼' : '▶' }}
-              </button>
-            </td>
-            <td>{{ student.studentName }}</td>
-            <td style="text-align: center;">
-              {{ getDisplayedAverage(student)?.toFixed(2) || '-' }}
-            </td>
-            <td style="text-align: center;">
-              {{ getDisplayedAcademicPerformance(student) || '-' }}
-            </td>
-            <td style="text-align: center;">
-              {{ getDisplayedConduct(student) || '-' }}
-            </td>
-            <td *ngIf="selectedView === 'year'" style="text-align: center;">
-              {{ student.yearResult || '-' }}
-            </td>
-          </tr>
+      <div class="stat-card info">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-content">
+          <h3>{{ stats.excellentStudents + stats.goodStudents }}</h3>
+          <p>Học Sinh Giỏi & Khá</p>
+        </div>
+      </div>
+    </div>
 
-          <!-- Subject details row (expandable) -->
-          <tr *ngIf="isStudentExpanded(student.studentId)">
-            <td colspan="6" style="background-color: #f5f5f5; padding: 10px;">
-              <strong>Chi tiết môn học:</strong>
-              <table border="1" style="width: 100%; margin-top: 10px; border-collapse: collapse;">
-                <thead>
-                  <tr>
-                    <th>Môn học</th>
-                    <th *ngIf="selectedView === 'semester1' || selectedView === 'year'">Học kì 1</th>
-                    <th *ngIf="selectedView === 'semester2' || selectedView === 'year'">Học kì 2</th>
-                    <th *ngIf="selectedView === 'year'">Cả năm</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let subject of student.subjectResults">
-                    <td>{{ subject.subjectName }}</td>
-                    <td *ngIf="selectedView === 'semester1' || selectedView === 'year'"
-                        style="text-align: center;">
-                      {{ subject.semester1Average?.toFixed(2) || '-' }}
-                    </td>
-                    <td *ngIf="selectedView === 'semester2' || selectedView === 'year'"
-                        style="text-align: center;">
-                      {{ subject.semester2Average?.toFixed(2) || '-' }}
-                    </td>
-                    <td *ngIf="selectedView === 'year'" style="text-align: center;">
-                      {{ subject.yearAverage?.toFixed(2) || '-' }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </ng-container>
-      </tbody>
-    </table>
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+      <!-- Performance Distribution - Pie Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Phân Bố Học Lực</h3>
+        </div>
+        <div class="chart-body">
+          <div class="pie-chart">
+            <svg viewBox="0 0 200 200" width="200" height="200">
+              <circle class="pie-segment excellent" cx="100" cy="100" r="80"
+                [attr.stroke-dasharray]="getPerformancePercentage('excellent') * 5.03 + ' 502.4'"
+                transform="rotate(-90 100 100)" />
+              <circle class="pie-segment good" cx="100" cy="100" r="80"
+                [attr.stroke-dasharray]="getPerformancePercentage('good') * 5.03 + ' 502.4'"
+                [attr.stroke-dashoffset]="-getPerformancePercentage('excellent') * 5.03"
+                transform="rotate(-90 100 100)" />
+              <circle class="pie-segment average" cx="100" cy="100" r="80"
+                [attr.stroke-dasharray]="getPerformancePercentage('average') * 5.03 + ' 502.4'"
+                [attr.stroke-dashoffset]="-(getPerformancePercentage('excellent') + getPerformancePercentage('good')) * 5.03"
+                transform="rotate(-90 100 100)" />
+              <circle class="pie-segment below-average" cx="100" cy="100" r="80"
+                [attr.stroke-dasharray]="getPerformancePercentage('belowAverage') * 5.03 + ' 502.4'"
+                [attr.stroke-dashoffset]="-(getPerformancePercentage('excellent') + getPerformancePercentage('good') + getPerformancePercentage('average')) * 5.03"
+                transform="rotate(-90 100 100)" />
+            </svg>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color excellent"></span>
+              <span class="legend-label">Giỏi: {{ performanceDistribution.excellent }} ({{ getPerformancePercentage('excellent').toFixed(1) }}%)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color good"></span>
+              <span class="legend-label">Khá: {{ performanceDistribution.good }} ({{ getPerformancePercentage('good').toFixed(1) }}%)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color average"></span>
+              <span class="legend-label">TB: {{ performanceDistribution.average }} ({{ getPerformancePercentage('average').toFixed(1) }}%)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color below-average"></span>
+              <span class="legend-label">Yếu: {{ performanceDistribution.belowAverage }} ({{ getPerformancePercentage('belowAverage').toFixed(1) }}%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Class Statistics - Bar Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Số Lượng Học Sinh Theo Lớp</h3>
+        </div>
+        <div class="chart-body">
+          <div class="bar-chart">
+            <div *ngFor="let classItem of classStats" class="bar-item">
+              <div class="bar-label">{{ classItem.className }}</div>
+              <div class="bar-container">
+                <div class="bar-fill" [style.width.%]="(classItem.studentCount / getMaxClassCount()) * 100">
+                  <span class="bar-value">{{ classItem.studentCount }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Semester Comparison - Line Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>So Sánh Điểm Trung Bình</h3>
+        </div>
+        <div class="chart-body">
+          <div class="line-chart">
+            <div class="chart-area">
+              <div class="y-axis">
+                <span>10</span>
+                <span>7.5</span>
+                <span>5</span>
+                <span>2.5</span>
+                <span>0</span>
+              </div>
+              <div class="chart-content">
+                <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+                  <polyline class="line-path"
+                    [attr.points]="'50,' + (150 - semesterComparison.semester1Avg * 15) + ' 150,' + (150 - semesterComparison.semester2Avg * 15) + ' 250,' + (150 - semesterComparison.yearAvg * 15)" />
+                  <circle class="line-point" [attr.cx]="50" [attr.cy]="150 - semesterComparison.semester1Avg * 15" r="4" />
+                  <circle class="line-point" [attr.cx]="150" [attr.cy]="150 - semesterComparison.semester2Avg * 15" r="4" />
+                  <circle class="line-point" [attr.cx]="250" [attr.cy]="150 - semesterComparison.yearAvg * 15" r="4" />
+                </svg>
+                <div class="x-axis">
+                  <span>HK1<br><strong>{{ semesterComparison.semester1Avg.toFixed(2) }}</strong></span>
+                  <span>HK2<br><strong>{{ semesterComparison.semester2Avg.toFixed(2) }}</strong></span>
+                  <span>Cả năm<br><strong>{{ semesterComparison.yearAvg.toFixed(2) }}</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conduct Distribution -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Phân Bố Hạnh Kiểm</h3>
+        </div>
+        <div class="chart-body">
+          <div class="donut-chart">
+            <div class="donut-segments">
+              <div *ngFor="let conduct of ['Tốt', 'Khá', 'Trung bình', 'Yếu']; let i = index" class="donut-item">
+                <div class="donut-bar">
+                  <div class="donut-fill"
+                       [class.conduct-excellent]="conduct === 'Tốt'"
+                       [class.conduct-good]="conduct === 'Khá'"
+                       [class.conduct-average]="conduct === 'Trung bình'"
+                       [class.conduct-poor]="conduct === 'Yếu'"
+                       [style.width.%]="getConductPercentage(conduct)">
+                  </div>
+                </div>
+                <div class="donut-label">
+                  <span class="conduct-name">{{ conduct }}</span>
+                  <span class="conduct-value">{{ conductDistribution[conduct] || 0 }} ({{ getConductPercentage(conduct).toFixed(1) }}%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Average Score by Class -->
+      <div class="chart-card full-width">
+        <div class="chart-header">
+          <h3>Điểm Trung Bình Theo Lớp</h3>
+        </div>
+        <div class="chart-body">
+          <div class="horizontal-bar-chart">
+            <div *ngFor="let classItem of classStats" class="h-bar-item">
+              <div class="h-bar-label">{{ classItem.className }}</div>
+              <div class="h-bar-container">
+                <div class="h-bar-fill"
+                     [style.width.%]="(classItem.averageScore / 10) * 100"
+                     [class.score-excellent]="classItem.averageScore >= 8"
+                     [class.score-good]="classItem.averageScore >= 6.5 && classItem.averageScore < 8"
+                     [class.score-average]="classItem.averageScore >= 5 && classItem.averageScore < 6.5"
+                     [class.score-poor]="classItem.averageScore < 5">
+                  <span class="h-bar-value">{{ classItem.averageScore.toFixed(2) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAILS MODE - Student Grade Details -->
+  <div *ngIf="!isLoading && viewMode === 'details'">
+    <div style="margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px;">
+      <label>Xem theo:</label>
+      <select [(ngModel)]="selectedView" style="margin-left: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        <option value="semester1">Học kì 1</option>
+        <option value="semester2">Học kì 2</option>
+        <option value="year">Cả năm</option>
+      </select>
+    </div>
+
+    <div *ngFor="let gradeLevel of gradeLevelResults" style="margin-bottom: 30px;">
+      <h3 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">{{ gradeLevel.gradeLevelName }}</h3>
+
+      <div *ngFor="let class of gradeLevel.classes" style="margin-bottom: 20px;">
+        <h4 style="color: #34495e; margin: 15px 0;">{{ class.className }}</h4>
+
+        <table border="1" style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+          <thead>
+            <tr style="background-color: #3498db; color: white;">
+              <th style="width: 40px; padding: 12px;"></th>
+              <th style="padding: 12px; text-align: left;">Tên học sinh</th>
+              <th style="padding: 12px;">Điểm TB</th>
+              <th style="padding: 12px;">Học lực</th>
+              <th style="padding: 12px;">Hạnh kiểm</th>
+              <th *ngIf="selectedView === 'year'" style="padding: 12px;">Kết quả</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let student of class.students">
+              <tr style="border-bottom: 1px solid #ecf0f1;">
+                <td style="text-align: center; padding: 10px;">
+                  <button (click)="toggleStudentDetails(student.studentId)"
+                    style="border: none; background: none; cursor: pointer; font-size: 16px; color: #3498db;">
+                    {{ isStudentExpanded(student.studentId) ? '▼' : '▶' }}
+                  </button>
+                </td>
+                <td style="padding: 10px;">{{ student.studentName }}</td>
+                <td style="text-align: center; padding: 10px; font-weight: 600;">
+                  {{ getDisplayedAverage(student)?.toFixed(2) || '-' }}
+                </td>
+                <td style="text-align: center; padding: 10px;">
+                  <span [style.color]="getDisplayedAcademicPerformance(student) === 'Giỏi' || getDisplayedAcademicPerformance(student) === 'Xuất sắc' ? '#27ae60' : '#555'">
+                    {{ getDisplayedAcademicPerformance(student) || '-' }}
+                  </span>
+                </td>
+                <td style="text-align: center; padding: 10px;">
+                  {{ getDisplayedConduct(student) || '-' }}
+                </td>
+                <td *ngIf="selectedView === 'year'" style="text-align: center; padding: 10px; font-weight: 600;">
+                  <span [style.color]="student.yearResult === 'Lên lớp' ? '#27ae60' : '#e74c3c'">
+                    {{ student.yearResult || '-' }}
+                  </span>
+                </td>
+              </tr>
+
+              <tr *ngIf="isStudentExpanded(student.studentId)">
+                <td colspan="6" style="background-color: #f8f9fa; padding: 15px;">
+                  <strong style="color: #2c3e50;">Chi tiết môn học:</strong>
+                  <table border="1" style="width: 100%; margin-top: 10px; border-collapse: collapse; background: white;">
+                    <thead>
+                      <tr style="background-color: #ecf0f1;">
+                        <th style="width: 40px; padding: 10px;"></th>
+                        <th style="padding: 10px; text-align: left;">Môn học</th>
+                        <th *ngIf="selectedView === 'semester1' || selectedView === 'year'" style="padding: 10px;">Học kì 1</th>
+                        <th *ngIf="selectedView === 'semester2' || selectedView === 'year'" style="padding: 10px;">Học kì 2</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ng-container *ngFor="let subject of student.subjectResults">
+                        <tr style="cursor: pointer;" (click)="toggleSubjectDetails(student.studentId, class.classId, subject.subjectId)">
+                          <td style="text-align: center; padding: 8px;">
+                            <span *ngIf="!isSubjectLoading(student.studentId, subject.subjectId)" style="color: #3498db;">
+                              {{ isSubjectExpanded(student.studentId, subject.subjectId) ? '▼' : '▶' }}
+                            </span>
+                            <span *ngIf="isSubjectLoading(student.studentId, subject.subjectId)">⏳</span>
+                          </td>
+                          <td style="padding: 8px;">{{ subject.subjectName }}</td>
+                          <td *ngIf="selectedView === 'semester1' || selectedView === 'year'" style="text-align: center; padding: 8px;">
+                            {{ subject.semester1Average?.toFixed(2) || '-' }}
+                          </td>
+                          <td *ngIf="selectedView === 'semester2' || selectedView === 'year'" style="text-align: center; padding: 8px;">
+                            {{ subject.semester2Average?.toFixed(2) || '-' }}
+                          </td>
+                        </tr>
+
+                        <tr *ngIf="isSubjectExpanded(student.studentId, subject.subjectId)">
+                          <td colspan="4" style="background-color: #f8f9fa; padding: 10px;">
+                            <div *ngIf="getSubjectDetails(student.studentId, subject.subjectId) as details">
+                              <div *ngFor="let semester of details.semesters" style="margin-bottom: 15px;">
+                                <strong>{{ semester.semesterName }}:</strong>
+                                <span style="margin-left: 10px;">Điểm TB: {{ semester.average?.toFixed(2) || '-' }}</span>
+
+                                <table border="1" style="width: 100%; margin-top: 5px; border-collapse: collapse;">
+                                  <thead>
+                                    <tr style="background-color: #ecf0f1;">
+                                      <th style="padding: 8px;">Loại điểm</th>
+                                      <th style="padding: 8px;">Hệ số</th>
+                                      <th style="padding: 8px;">Điểm</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr *ngFor="let grade of semester.grades">
+                                      <td style="padding: 6px;">{{ grade.gradeTypeName }}</td>
+                                      <td style="text-align: center; padding: 6px;">{{ grade.coefficient }}</td>
+                                      <td style="text-align: center; padding: 6px;">
+                                        <span *ngIf="!grade.isComment">{{ grade.score?.toFixed(2) || '-' }}</span>
+                                        <span *ngIf="grade.isComment">{{ grade.comment || '-' }}</span>
+                                      </td>
+                                    </tr>
+                                    <tr *ngIf="semester.grades.length === 0">
+                                      <td colspan="3" style="text-align: center; font-style: italic; color: #888; padding: 10px;">
+                                        Chưa có điểm
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </ng-container>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p *ngIf="gradeLevelResults.length === 0" style="text-align: center; color: #888; padding: 40px;">Không có dữ liệu</p>
+  </div>
+
+  <div *ngIf="!isLoading && stats.totalStudents === 0" class="empty-state">
+    <p>Không có dữ liệu để hiển thị</p>
   </div>
 </div>
-
-<p *ngIf="!isLoading && gradeLevelResults.length === 0">Không có dữ liệu</p>

@@ -44,7 +44,30 @@ export interface SubjectResultDto {
   subjectName: string;
   semester1Average?: number;
   semester2Average?: number;
-  yearAverage?: number;
+}
+
+export interface SubjectDetailedGradesDto {
+  studentId: string;
+  studentName: string;
+  subjectId: string;
+  subjectName: string;
+  semesters: SemesterDetailedGradesDto[];
+}
+
+export interface SemesterDetailedGradesDto {
+  semesterId: string;
+  semesterName: string;
+  average?: number;
+  grades: GradeEntryDto[];
+}
+
+export interface GradeEntryDto {
+  gradeTypeId: string;
+  gradeTypeName: string;
+  coefficient: number;
+  score?: number;
+  isComment: boolean;
+  comment?: string;
 }
 
 @Injectable({
@@ -60,6 +83,20 @@ export class PrincipalDashboardService {
   getGradeLevelResults(schoolYearId: string): Observable<GradeLevelResultsDto[]> {
     return this.http.get<GradeLevelResultsDto[]>(
       `${this.apiUrl}/grade-results/${schoolYearId}`
+    );
+  }
+
+  /**
+   * Get detailed grades for a specific student and subject
+   */
+  getSubjectDetailedGrades(
+    studentId: string,
+    classId: string,
+    schoolYearId: string,
+    subjectId: string
+  ): Observable<SubjectDetailedGradesDto> {
+    return this.http.get<SubjectDetailedGradesDto>(
+      `${this.apiUrl}/subject-details/${studentId}/${classId}/${schoolYearId}/${subjectId}`
     );
   }
 
