@@ -75,11 +75,11 @@
         <tr>
           <th>STT</th>
           <th>Họ và Tên</th>
-          <th *ngFor="let gradeType of gradeTypes">
+          <th *ngFor="let gradeType of gradeTypes" style="text-align: center;">
             {{ gradeType.gradeTypeName }}<br>
             <small>(Hệ số {{ gradeType.coefficient }})</small>
           </th>
-          <th class="average-column">
+          <th class="average-column" style="text-align: center;">
             Điểm Trung Bình
           </th>
         </tr>
@@ -230,6 +230,7 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Import Điểm từ Excel</h3>
+        <button class="close-btn" (click)="closeImportDialog()">&times;</button>
       </div>
 
       <div class="modal-section">
@@ -281,6 +282,7 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Export Bảng Điểm</h3>
+        <button class="close-btn" (click)="closeExportDialog()">&times;</button>
       </div>
 
       <div class="modal-section">

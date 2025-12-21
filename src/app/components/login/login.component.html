@@ -1,7 +1,11 @@
 <div class="login-container">
   <div class="login-card">
     <div class="login-header">
-      <div class="login-logo">🏫</div>
+      <div class="login-logo">
+        <img [src]="logoUrl"
+             alt="Login Logo"
+             class="logo-image">
+      </div>
       <h1>Hệ Thống Quản Lý Học Vụ</h1>
       <p>Đăng nhập để tiếp tục</p>
     </div>
@@ -70,6 +74,32 @@
           placeholder="Nhập mật khẩu"
           required
           autocomplete="current-password">
+      </div>
+
+      <div class="form-group" *ngIf="showCaptcha">
+        <label for="captcha" class="form-label" style="color: #e74c3c; font-weight: 600;">
+          Nhập mã xác thực bên dưới:
+        </label>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <canvas #captchaCanvas
+                  width="200"
+                  height="60"
+                  style="border: 2px solid #e74c3c; border-radius: 4px; background: #f8f8f8;"></canvas>
+          <button type="button"
+                  (click)="refreshCaptcha()"
+                  style="padding: 8px 12px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🔄
+          </button>
+        </div>
+        <input
+          id="captcha"
+          type="text"
+          class="form-control"
+          [(ngModel)]="captchaAnswer"
+          name="captcha"
+          placeholder="Nhập mã xác thực (không phân biệt chữ hoa/thường)"
+          required
+          style="border-color: #e74c3c;">
       </div>
 
       <div class="forgot-password">

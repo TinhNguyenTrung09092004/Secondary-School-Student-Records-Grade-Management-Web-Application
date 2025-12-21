@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { FaceRecognitionService } from '../../services/face-recognition.service';
 import { Router, RouterLink } from '@angular/router';
@@ -17,34 +18,145 @@ declare var msal: any;
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
+  @ViewChild('captchaCanvas') captchaCanvas?: ElementRef<HTMLCanvasElement>;
+
   email = '';
   password = '';
   error = '';
+  logoUrl = 'https://res.cloudinary.com/dxfubqntx/image/upload/v1766312494/LOGO_k6u5iq.png';
+  showCaptcha = false;
+  captchaQuestion = '';
+  captchaToken = '';
+  captchaAnswer = '';
   private platformId = inject(PLATFORM_ID);
   private faceRecognitionService = inject(FaceRecognitionService);
   private msalInstance: any;
   faceLoginInProgress = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private http: HttpClient) {}
+
+  ngAfterViewInit() {
+    if (this.showCaptcha && this.captchaCanvas) {
+      this.drawCaptcha();
+    }
+  }
 
   ngOnInit() {
+    this.loadLogo();
     if (isPlatformBrowser(this.platformId)) {
       this.loadGoogleScript();
       this.loadMicrosoftScript();
     }
   }
 
+  private loadLogo() {
+    this.http.get<any>(`${environment.apiUrl}/api/SystemSettings/logo`).subscribe({
+      next: (response) => {
+        if (response.logoUrl) {
+          this.logoUrl = response.logoUrl;
+        }
+      },
+      error: () => {
+        // Use default logo if API fails
+        console.log('Failed to load logo from API, using default');
+      }
+    });
+  }
+
   onLogin() {
-    const credentials: LoginRequest = {
+    const credentials: any = {
       email: this.email,
       password: this.password
     };
 
+    if (this.showCaptcha) {
+      credentials.captchaToken = this.captchaToken;
+      credentials.captchaAnswer = this.captchaAnswer;
+    }
+
     this.authService.login(credentials).subscribe({
       next: () => this.navigateByRole(),
-      error: (err) => this.error = 'Đăng nhập thất bại'
+      error: (err) => {
+        this.error = err.error?.message || 'Đăng nhập thất bại';
+
+        if (err.error?.requiresCaptcha) {
+          this.loadCaptcha();
+        }
+      }
     });
+  }
+
+  private loadCaptcha() {
+    this.http.get<any>(`${environment.apiUrl}/api/auth/captcha`).subscribe({
+      next: (response) => {
+        this.showCaptcha = true;
+        this.captchaQuestion = response.question;
+        this.captchaToken = response.token;
+        this.captchaAnswer = '';
+        setTimeout(() => this.drawCaptcha(), 100);
+      },
+      error: () => {
+        this.error = 'Không thể tải captcha';
+      }
+    });
+  }
+
+  refreshCaptcha() {
+    this.loadCaptcha();
+  }
+
+  private drawCaptcha() {
+    if (!this.captchaCanvas) return;
+
+    const canvas = this.captchaCanvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background with gradient
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#f0f0f0');
+    gradient.addColorStop(1, '#e0e0e0');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Add noise lines
+    for (let i = 0; i < 5; i++) {
+      ctx.strokeStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.3)`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+      ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+      ctx.stroke();
+    }
+
+    // Draw distorted text
+    const text = this.captchaQuestion;
+    const charSpacing = canvas.width / (text.length + 1);
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const x = charSpacing * (i + 1);
+      const y = 35 + (Math.random() - 0.5) * 10;
+      const angle = (Math.random() - 0.5) * 0.3;
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.font = `bold ${24 + Math.random() * 6}px Arial`;
+      ctx.fillStyle = `rgb(${Math.random() * 100}, ${Math.random() * 100}, ${Math.random() * 100})`;
+      ctx.fillText(char, 0, 0);
+      ctx.restore();
+    }
+
+    // Add noise dots
+    for (let i = 0; i < 50; i++) {
+      ctx.fillStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.3)`;
+      ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 2);
+    }
   }
 
   private loadGoogleScript() {

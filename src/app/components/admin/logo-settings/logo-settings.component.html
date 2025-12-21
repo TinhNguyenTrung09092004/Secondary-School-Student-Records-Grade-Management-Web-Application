@@ -1,0 +1,28 @@
+<div>
+  <h2>Cài Đặt Logo Đăng Nhập</h2>
+
+  <div *ngIf="message" [style.color]="messageType === 'success' ? 'green' : 'red'" style="margin: 10px 0; padding: 10px; border: 1px solid; border-radius: 4px;">
+    {{ message }}
+  </div>
+
+  <div style="margin: 20px 0;">
+    <h3>Logo Hiện Tại:</h3>
+    <img [src]="currentLogoUrl" alt="Current Logo" style="max-width: 200px; max-height: 200px; border: 1px solid #ccc; padding: 10px;">
+  </div>
+
+  <div style="margin: 20px 0;">
+    <h3>Tải Lên Logo Mới:</h3>
+    <input type="file" (change)="onFileSelected($event)" accept="image/*" style="margin: 10px 0;">
+    <p style="color: #666; font-size: 14px;">Hoặc nhập URL từ Cloudinary:</p>
+    <input type="text" [(ngModel)]="logoUrl" placeholder="https://res.cloudinary.com/..." style="width: 100%; padding: 8px; margin: 10px 0;">
+  </div>
+
+  <div style="margin: 20px 0;" *ngIf="logoUrl && logoUrl !== currentLogoUrl">
+    <h3>Xem Trước:</h3>
+    <img [src]="logoUrl" alt="Preview Logo" style="max-width: 200px; max-height: 200px; border: 1px solid #ccc; padding: 10px;">
+  </div>
+
+  <button (click)="saveLogo()" [disabled]="uploading" style="padding: 10px 20px; background-color: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
+    {{ uploading ? 'Đang tải lên...' : 'Lưu Logo' }}
+  </button>
+</div>

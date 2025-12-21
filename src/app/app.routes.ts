@@ -10,6 +10,7 @@ import { AcademicLayoutComponent } from './components/layouts/academic-layout/ac
 import { TeacherLayoutComponent } from './components/layouts/teacher-layout/teacher-layout.component';
 import { UserManagementComponent } from './components/admin/user-management/user-management.component';
 import { BackupComponent } from './components/admin/backup/backup.component';
+import { LogoSettingsComponent } from './components/admin/logo-settings/logo-settings.component';
 import { EthnicityManagementComponent } from './components/academic/ethnicity-management/ethnicity-management.component';
 import { ReligionManagementComponent } from './components/academic/religion-management/religion-management.component';
 import { OccupationManagementComponent } from './components/academic/occupation-management/occupation-management.component';
@@ -48,7 +49,8 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard(['Admin'])],
     children: [
       { path: 'users', component: UserManagementComponent },
-      { path: 'backup', component: BackupComponent }
+      { path: 'backup', component: BackupComponent },
+      { path: 'logo-settings', component: LogoSettingsComponent }
     ]
   },
   {

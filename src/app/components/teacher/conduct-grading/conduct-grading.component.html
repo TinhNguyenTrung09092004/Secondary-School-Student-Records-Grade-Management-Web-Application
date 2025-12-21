@@ -1,104 +1,109 @@
-<h2>Đánh Giá Hạnh Kiểm Học Sinh</h2>
-
-<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
-<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
-<p *ngIf="loading">Đang tải...</p>
-
-<div style="margin-bottom: 20px;">
-  <h3>Chọn Lớp Chủ Nhiệm</h3>
-  <div *ngIf="myClasses.length === 0 && !loading">
-    <p>Bạn chưa được phân công làm giáo viên chủ nhiệm cho lớp nào.</p>
+<div class="conduct-container">
+  <div class="page-header">
+    <h2>Đánh Giá Hạnh Kiểm Học Sinh</h2>
   </div>
-  <div *ngIf="myClasses.length > 0">
-    <select [(ngModel)]="selectedClass" (change)="selectClass(selectedClass!)" style="padding: 5px; width: 300px;">
-      <option [ngValue]="null">-- Chọn lớp --</option>
-      <option *ngFor="let cls of myClasses" [ngValue]="cls">
-        {{ cls.className }} - {{ cls.schoolYearName }} ({{ cls.studentCount }} học sinh)
-      </option>
-    </select>
+
+  <p *ngIf="errorMessage" class="message error-message">{{ errorMessage }}</p>
+  <p *ngIf="successMessage" class="message success-message">{{ successMessage }}</p>
+  <p *ngIf="loading" class="message loading-message">Đang tải...</p>
+
+  <div class="class-selection">
+    <h3>Chọn Lớp Chủ Nhiệm</h3>
+    <div *ngIf="myClasses.length === 0 && !loading" class="empty-state">
+      <p>Bạn chưa được phân công làm giáo viên chủ nhiệm cho lớp nào.</p>
+    </div>
+    <div *ngIf="myClasses.length > 0">
+      <select [(ngModel)]="selectedClass" (change)="selectClass(selectedClass!)" class="form-select">
+        <option [ngValue]="null">-- Chọn lớp --</option>
+        <option *ngFor="let cls of myClasses" [ngValue]="cls">
+          {{ cls.className }} - {{ cls.schoolYearName }} ({{ cls.studentCount }} học sinh)
+        </option>
+      </select>
+    </div>
   </div>
-</div>
 
-<div *ngIf="selectedClass && students.length > 0">
-  <h3>Danh Sách Học Sinh - {{ selectedClass.className }}</h3>
-  <table border="1" style="width: 100%; border-collapse: collapse;">
-    <thead>
-      <tr>
-        <th style="padding: 10px;">STT</th>
-        <th style="padding: 10px;">Mã Học Sinh</th>
-        <th style="padding: 10px;">Tên Học Sinh</th>
-        <th style="padding: 10px;" colspan="3">Học Kỳ I</th>
-        <th style="padding: 10px;" colspan="3">Học Kỳ II</th>
-        <th style="padding: 10px;" rowspan="2">Kết Quả Cả Năm</th>
-      </tr>
-      <tr>
-        <th colspan="3"></th>
-        <th style="padding: 10px;">Hiện Tại</th>
-        <th style="padding: 10px;">Chọn</th>
-        <th style="padding: 10px;">Cập Nhật</th>
-        <th style="padding: 10px;">Hiện Tại</th>
-        <th style="padding: 10px;">Chọn</th>
-        <th style="padding: 10px;">Cập Nhật</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let student of students; let i = index">
-        <td style="padding: 10px; text-align: center;">{{ i + 1 }}</td>
-        <td style="padding: 10px;">{{ student.studentId }}</td>
-        <td style="padding: 10px;">{{ student.studentName }}</td>
+  <div *ngIf="selectedClass && students.length > 0" class="table-section">
+    <h3>Danh Sách Học Sinh - {{ selectedClass.className }}</h3>
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th rowspan="2">STT</th>
+            <th rowspan="2">Mã Học Sinh</th>
+            <th rowspan="2">Tên Học Sinh</th>
+            <th colspan="3">Học Kỳ I</th>
+            <th colspan="3">Học Kỳ II</th>
+            <th rowspan="2">Kết Quả Cả Năm</th>
+          </tr>
+          <tr>
+            <th>Hiện Tại</th>
+            <th>Chọn</th>
+            <th>Cập Nhật</th>
+            <th>Hiện Tại</th>
+            <th>Chọn</th>
+            <th>Cập Nhật</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of students; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ student.studentId }}</td>
+            <td>{{ student.studentName }}</td>
 
-        <!-- Semester 1 -->
-        <td style="padding: 10px; text-align: center;">
-          <span *ngIf="student.semester1ConductName" style="font-weight: bold;">{{ student.semester1ConductName }}</span>
-          <span *ngIf="!student.semester1ConductName" style="color: #999;">Chưa đánh giá</span>
-        </td>
-        <td style="padding: 10px;">
-          <select #conductSelectHK1 [value]="student.semester1ConductId || ''" style="padding: 5px; width: 150px;">
-            <option value="">-- Chọn --</option>
-            <option *ngFor="let conduct of conductList" [value]="conduct.conductId">
-              {{ conduct.conductName }}
-            </option>
-          </select>
-        </td>
-        <td style="padding: 10px; text-align: center;">
-          <button (click)="updateConduct(student, 'HK1', conductSelectHK1.value)" style="padding: 5px 15px;">
-            Cập Nhật
-          </button>
-        </td>
+            <!-- Semester 1 -->
+            <td>
+              <span *ngIf="student.semester1ConductName" class="current-conduct">{{ student.semester1ConductName }}</span>
+              <span *ngIf="!student.semester1ConductName" class="not-graded">Chưa đánh giá</span>
+            </td>
+            <td>
+              <select #conductSelectHK1 [value]="student.semester1ConductId || ''" class="conduct-select">
+                <option value="">-- Chọn --</option>
+                <option *ngFor="let conduct of conductList" [value]="conduct.conductId">
+                  {{ conduct.conductName }}
+                </option>
+              </select>
+            </td>
+            <td>
+              <button (click)="updateConduct(student, 'HK1', conductSelectHK1.value)" class="btn-update">
+                Cập Nhật
+              </button>
+            </td>
 
-        <!-- Semester 2 -->
-        <td style="padding: 10px; text-align: center;">
-          <span *ngIf="student.semester2ConductName" style="font-weight: bold;">{{ student.semester2ConductName }}</span>
-          <span *ngIf="!student.semester2ConductName" style="color: #999;">Chưa đánh giá</span>
-        </td>
-        <td style="padding: 10px;">
-          <select #conductSelectHK2 [value]="student.semester2ConductId || ''" style="padding: 5px; width: 150px;">
-            <option value="">-- Chọn --</option>
-            <option *ngFor="let conduct of conductList" [value]="conduct.conductId">
-              {{ conduct.conductName }}
-            </option>
-          </select>
-        </td>
-        <td style="padding: 10px; text-align: center;">
-          <button (click)="updateConduct(student, 'HK2', conductSelectHK2.value)" style="padding: 5px 15px;">
-            Cập Nhật
-          </button>
-        </td>
+            <!-- Semester 2 -->
+            <td>
+              <span *ngIf="student.semester2ConductName" class="current-conduct">{{ student.semester2ConductName }}</span>
+              <span *ngIf="!student.semester2ConductName" class="not-graded">Chưa đánh giá</span>
+            </td>
+            <td>
+              <select #conductSelectHK2 [value]="student.semester2ConductId || ''" class="conduct-select">
+                <option value="">-- Chọn --</option>
+                <option *ngFor="let conduct of conductList" [value]="conduct.conductId">
+                  {{ conduct.conductName }}
+                </option>
+              </select>
+            </td>
+            <td>
+              <button (click)="updateConduct(student, 'HK2', conductSelectHK2.value)" class="btn-update">
+                Cập Nhật
+              </button>
+            </td>
 
-        <!-- Year-end conduct result -->
-        <td class="year-end-conduct" style="padding: 10px; text-align: center;">
-          <span *ngIf="student.yearEndConductName" [class]="'conduct-badge conduct-' + student.yearEndConductName.toLowerCase().replace(' ', '-')">
-            {{ student.yearEndConductName }}
-          </span>
-          <span *ngIf="!student.yearEndConductName" style="color: #999; font-style: italic;">
-            Chưa đủ dữ liệu
-          </span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+            <!-- Year-end conduct result -->
+            <td class="year-end-conduct">
+              <span *ngIf="student.yearEndConductName" [class]="'conduct-badge conduct-' + student.yearEndConductName.toLowerCase().replace(' ', '-')">
+                {{ student.yearEndConductName }}
+              </span>
+              <span *ngIf="!student.yearEndConductName" class="not-graded">
+                Chưa đủ dữ liệu
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-<div *ngIf="selectedClass && students.length === 0 && !loading">
-  <p>Không có học sinh trong lớp này hoặc bạn không có quyền truy cập.</p>
+  <div *ngIf="selectedClass && students.length === 0 && !loading" class="empty-state">
+    <p>Không có học sinh trong lớp này hoặc bạn không có quyền truy cập.</p>
+  </div>
 </div>
