@@ -10,12 +10,18 @@ import { GradeLevelDto } from '../../../models/gradelevel.model';
 import { SchoolYearDto } from '../../../models/schoolyear.model';
 import { TeacherDto } from '../../../models/teacher.model';
 
+interface Toast {
+  message: string;
+  type: 'success' | 'error';
+  closing?: boolean;
+}
+
 @Component({
   selector: 'app-class-management',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './class-management.component.html',
-  styleUrl: './class-management.component.css'
+  styleUrls: ['./class-management.component.css']
 })
 export class ClassManagementComponent implements OnInit {
   private classService = inject(ClassService);
@@ -36,6 +42,7 @@ export class ClassManagementComponent implements OnInit {
   successMessage = '';
   selectedTeacherId = '';
   isPrincipal = false;
+  toasts: Toast[] = [];
 
   newClass: CreateClassDto = {
     classId: '',
@@ -206,13 +213,35 @@ export class ClassManagementComponent implements OnInit {
   showError(message: string): void {
     this.errorMessage = message;
     this.successMessage = '';
-    setTimeout(() => this.errorMessage = '', 5000);
+    this.showToast(message, 'error');
   }
 
   showSuccess(message: string): void {
     this.successMessage = message;
     this.errorMessage = '';
-    setTimeout(() => this.successMessage = '', 5000);
+    this.showToast(message, 'success');
+  }
+
+  showToast(message: string, type: 'success' | 'error'): void {
+    const toast: Toast = { message, type };
+    this.toasts.push(toast);
+
+    setTimeout(() => {
+      const index = this.toasts.indexOf(toast);
+      if (index > -1) {
+        this.toasts[index].closing = true;
+        setTimeout(() => {
+          this.toasts = this.toasts.filter(t => t !== toast);
+        }, 300);
+      }
+    }, 5000);
+  }
+
+  removeToast(index: number): void {
+    this.toasts[index].closing = true;
+    setTimeout(() => {
+      this.toasts.splice(index, 1);
+    }, 300);
   }
 
   openAssignTeacherModal(classItem: ClassDto): void {

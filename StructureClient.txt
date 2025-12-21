@@ -11,7 +11,8 @@ C:\Users\tinh8\Documents\Project\client\src
 |   |   app.component.ts
 |   |   app.config.ts
 |   |   app.routes.ts
-|   |   
+|   |   shared-styles.css
+|   |
 |   +---components
 |   |   +---academic
 |   |   |   +---academic-performance-management
@@ -35,6 +36,7 @@ C:\Users\tinh8\Documents\Project\client\src
 |   |   |   |       conduct-management.component.ts
 |   |   |   |
 |   |   |   +---department-management
+|   |   |   |       department-management.component.css
 |   |   |   |       department-management.component.html
 |   |   |   |       department-management.component.ts
 |   |   |   |

@@ -1,76 +1,185 @@
-<div style="display: flex; min-height: 100vh;">
-  <nav style="width: 200px; background-color: #f0f0f0; padding: 20px; border-right: 1px solid #ccc;">
-    <h3></h3>
-    <ul style="list-style: none; padding: 0;">
-      <li style="margin-bottom: 10px;">
-        <a routerLink="/academic" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" style="text-decoration: none; color: #333;">Dashboard</a>
+<div class="layout-container">
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">Hệ Thống Học Vụ</h2>
+    </div>
+
+    <ul class="nav-menu">
+      <!-- Dashboard -->
+      <li class="nav-item">
+        <a routerLink="/academic"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: true}"
+           class="nav-link">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-text">Dashboard</span>
+        </a>
       </li>
-      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
-        <a routerLink="/academic/students" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Học Sinh</a>
+
+      <!-- Academic Affairs Section -->
+      <li *ngIf="isAcademicAffairs" class="nav-section">
+        <span class="section-title">Phòng Học Vụ</span>
       </li>
-      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
-        <a routerLink="/academic/classes" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Lớp Học</a>
+      <li *ngIf="isAcademicAffairs" class="nav-item">
+        <a routerLink="/academic/students" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">👨‍🎓</span>
+          <span class="nav-text">Quản Lý Học Sinh</span>
+        </a>
       </li>
-      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
-        <a routerLink="/academic/class-assignment" routerLinkActive="active" style="text-decoration: none; color: #333;">Phân Công Lớp</a>
+      <li *ngIf="isAcademicAffairs" class="nav-item">
+        <a routerLink="/academic/classes" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">🏫</span>
+          <span class="nav-text">Quản Lý Lớp Học</span>
+        </a>
       </li>
-      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
-        <a routerLink="/academic/grade-levels" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Khối</a>
+      <li *ngIf="isAcademicAffairs" class="nav-item">
+        <a routerLink="/academic/class-assignment" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📝</span>
+          <span class="nav-text">Phân Công Lớp</span>
+        </a>
       </li>
-      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
-        <a routerLink="/academic/school-years" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Năm Học</a>
+      <li *ngIf="isAcademicAffairs" class="nav-item">
+        <a routerLink="/academic/grade-levels" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Quản Lý Khối</span>
+        </a>
       </li>
-      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
-        <a routerLink="/academic/ethnicity" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Dân Tộc</a>
+      <li *ngIf="isAcademicAffairs" class="nav-item">
+        <a routerLink="/academic/school-years" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📅</span>
+          <span class="nav-text">Quản Lý Năm Học</span>
+        </a>
       </li>
-      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
-        <a routerLink="/academic/religion" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Tôn Giáo</a>
+      <li *ngIf="isAcademicAffairs" class="nav-item">
+        <a routerLink="/academic/ethnicity" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">🌍</span>
+          <span class="nav-text">Quản Lý Dân Tộc</span>
+        </a>
       </li>
-      <li *ngIf="isAcademicAffairs" style="margin-bottom: 10px;">
-        <a routerLink="/academic/occupation" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Nghề Nghiệp</a>
+      <li *ngIf="isAcademicAffairs" class="nav-item">
+        <a routerLink="/academic/religion" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">☪️</span>
+          <span class="nav-text">Quản Lý Tôn Giáo</span>
+        </a>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/subjects" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Môn Học</a>
+      <li *ngIf="isAcademicAffairs" class="nav-item">
+        <a routerLink="/academic/occupation" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">💼</span>
+          <span class="nav-text">Quản Lý Nghề Nghiệp</span>
+        </a>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/departments" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Tổ Bộ Môn</a>
+
+      <!-- Principal Section -->
+      <li *ngIf="isPrincipal" class="nav-section">
+        <span class="section-title">Hiệu Trưởng</span>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/semesters" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Học Kỳ</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/principal-dashboard" routerLinkActive="active" class="nav-link highlight">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Bảng Điều Khiển</span>
+        </a>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/grade-types" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Loại Điểm</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/subjects" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📚</span>
+          <span class="nav-text">Quản Lý Môn Học</span>
+        </a>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/conduct" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Hạnh Kiểm</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/departments" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">🏢</span>
+          <span class="nav-text">Quản Lý Tổ Bộ Môn</span>
+        </a>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/academic-performance" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Học Lực</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/semesters" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📆</span>
+          <span class="nav-text">Quản Lý Học Kỳ</span>
+        </a>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/result" routerLinkActive="active" style="text-decoration: none; color: #333;">Quản Lý Kết Quả</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/grade-types" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">✏️</span>
+          <span class="nav-text">Quản Lý Loại Điểm</span>
+        </a>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/principal-dashboard" routerLinkActive="active" style="text-decoration: none; color: #333; font-weight: bold;">📊 Bảng Điều Khiển</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/conduct" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">⭐</span>
+          <span class="nav-text">Quản Lý Hạnh Kiểm</span>
+        </a>
       </li>
-      <li *ngIf="isPrincipal" style="margin-bottom: 10px;">
-        <a routerLink="/academic/classes" routerLinkActive="active" style="text-decoration: none; color: #333;">Phân Công GVCN</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/academic-performance" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">🎯</span>
+          <span class="nav-text">Quản Lý Học Lực</span>
+        </a>
       </li>
-      <li style="margin-bottom: 10px; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
-        <a routerLink="/face-enrollment" style="text-decoration: none; color: #0066cc;">Đăng Ký Khuôn Mặt</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/result" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📈</span>
+          <span class="nav-text">Quản Lý Kết Quả</span>
+        </a>
       </li>
-      <li style="margin-bottom: 10px;">
-        <a href="#" (click)="logout($event)" style="text-decoration: none; color: #d00;">Đăng Xuất</a>
+      <li *ngIf="isPrincipal" class="nav-item">
+        <a routerLink="/academic/classes" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">👥</span>
+          <span class="nav-text">Phân Công GVCN</span>
+        </a>
+      </li>
+
+      <!-- System Section -->
+      <li class="nav-section">
+        <span class="section-title">Hệ Thống</span>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/face-enrollment" class="nav-link">
+          <span class="nav-icon">📸</span>
+          <span class="nav-text">Đăng Ký Khuôn Mặt</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" (click)="logout($event)" class="nav-link logout">
+          <span class="nav-icon">🚪</span>
+          <span class="nav-text">Đăng Xuất</span>
+        </a>
       </li>
     </ul>
   </nav>
-  <main style="flex: 1; padding: 20px;">
-    <div *ngIf="showDashboard">
-      <h2>Dashboard</h2>
-      <p>Chào mừng đến với hệ thống quản lý.</p>
-      <div style="margin-top: 20px;">
-        <h3>Thông tin học vụ</h3>
-        <p>Nội dung thống kê và quản lý học vụ sẽ được hiển thị ở đây.</p>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div *ngIf="showDashboard" class="dashboard-welcome">
+      <div class="welcome-card">
+        <h1 class="welcome-title">Chào Mừng Đến Với Hệ Thống Quản Lý</h1>
+        <p class="welcome-subtitle">Hệ thống quản lý học vụ trường học</p>
+
+        <div class="info-cards">
+          <div class="info-card primary">
+            <div class="info-icon">📚</div>
+            <div class="info-content">
+              <h3>Thông Tin Học Vụ</h3>
+              <p>Quản lý toàn bộ thông tin học sinh, lớp học và môn học</p>
+            </div>
+          </div>
+
+          <div class="info-card success">
+            <div class="info-icon">📊</div>
+            <div class="info-content">
+              <h3>Báo Cáo & Thống Kê</h3>
+              <p>Theo dõi và phân tích kết quả học tập</p>
+            </div>
+          </div>
+
+          <div class="info-card warning">
+            <div class="info-icon">👨‍🏫</div>
+            <div class="info-content">
+              <h3>Quản Lý Giáo Viên</h3>
+              <p>Phân công và theo dõi công tác giảng dạy</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <router-outlet></router-outlet>

@@ -1,40 +1,92 @@
-<div style="display: flex; min-height: 100vh;">
-  <nav style="width: 200px; background-color: #f0f0f0; padding: 20px; border-right: 1px solid #ccc;">
-    <h3>Giáo Viên</h3>
-    <ul style="list-style: none; padding: 0;">
-      <li style="margin-bottom: 10px;">
-        <a routerLink="/teacher" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" style="text-decoration: none; color: #333;">Dashboard</a>
+<div class="layout-container">
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">Hệ Thống Giáo Viên</h2>
+    </div>
+
+    <ul class="nav-menu">
+      <!-- Dashboard -->
+      <li class="nav-item">
+        <a routerLink="/teacher"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: true}"
+           class="nav-link">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-text">Dashboard</span>
+        </a>
       </li>
-      <li style="margin-bottom: 10px;">
-        <a routerLink="/teacher/profile" routerLinkActive="active" style="text-decoration: none; color: #333;">Hồ Sơ Cá Nhân</a>
+
+      <!-- Teacher Functions Section -->
+      <li class="nav-section">
+        <span class="section-title">Chức Năng Giáo Viên</span>
       </li>
-      <li style="margin-bottom: 10px;">
-        <a routerLink="/teacher/grade-entry" routerLinkActive="active" style="text-decoration: none; color: #333;">Nhập Điểm</a>
+      <li class="nav-item">
+        <a routerLink="/teacher/profile" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">👤</span>
+          <span class="nav-text">Hồ Sơ Cá Nhân</span>
+        </a>
       </li>
-      <li style="margin-bottom: 10px;">
-        <a routerLink="/teacher/grade-view" routerLinkActive="active" style="text-decoration: none; color: #333;">Xem Điểm</a>
+      <li class="nav-item">
+        <a routerLink="/teacher/grade-entry" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">✏️</span>
+          <span class="nav-text">Nhập Điểm</span>
+        </a>
       </li>
-      <li style="margin-bottom: 10px;">
-        <a routerLink="/teacher/conduct-grading" routerLinkActive="active" style="text-decoration: none; color: #333;">Đánh Giá Hạnh Kiểm</a>
+      <li class="nav-item">
+        <a routerLink="/teacher/grade-view" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Xem Điểm</span>
+        </a>
       </li>
-      <li *ngIf="isDepartmentHead" style="margin-bottom: 10px;">
-        <a routerLink="/teacher/teaching-assignment" routerLinkActive="active" style="text-decoration: none; color: #333;">Phân Công Giảng Dạy</a>
+      <li class="nav-item">
+        <a routerLink="/teacher/conduct-grading" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">⭐</span>
+          <span class="nav-text">Đánh Giá Hạnh Kiểm</span>
+        </a>
       </li>
-      <li style="margin-bottom: 10px; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
-        <a routerLink="/face-enrollment" style="text-decoration: none; color: #0066cc;">Đăng Ký Khuôn Mặt</a>
+
+      <!-- Department Head Section -->
+      <li *ngIf="isDepartmentHead" class="nav-section">
+        <span class="section-title">Tổ Trưởng Bộ Môn</span>
       </li>
-      <li style="margin-bottom: 10px;">
-        <a href="#" (click)="logout($event)" style="text-decoration: none; color: #d00;">Đăng Xuất</a>
+      <li *ngIf="isDepartmentHead" class="nav-item">
+        <a routerLink="/teacher/teaching-assignment" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📝</span>
+          <span class="nav-text">Phân Công Giảng Dạy</span>
+        </a>
+      </li>
+
+      <!-- System Section -->
+      <li class="nav-section">
+        <span class="section-title">Hệ Thống</span>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/face-enrollment" class="nav-link">
+          <span class="nav-icon">📸</span>
+          <span class="nav-text">Đăng Ký Khuôn Mặt</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" (click)="logout($event)" class="nav-link logout">
+          <span class="nav-icon">🚪</span>
+          <span class="nav-text">Đăng Xuất</span>
+        </a>
       </li>
     </ul>
   </nav>
-  <main style="flex: 1; padding: 20px;">
-    <div *ngIf="showDashboard">
-      <h2>Dashboard</h2>
-      <p>Chào mừng Giáo Viên đến với hệ thống quản lý.</p>
-      <div style="margin-top: 20px;">
-        <h3>Thông tin</h3>
-        <p>Bạn có thể quản lý hồ sơ cá nhân của mình ở đây.</p>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div *ngIf="showDashboard" class="dashboard-welcome">
+      <div class="welcome-card">
+        <h1 class="welcome-title">Chào Mừng Giáo Viên</h1>
+        <p class="welcome-subtitle">Hệ thống quản lý giảng dạy và đánh giá</p>
+
+        <div class="info-section">
+          <h3>Thông Tin</h3>
+          <p>Bạn có thể quản lý hồ sơ cá nhân, nhập điểm, xem điểm và đánh giá hạnh kiểm học sinh tại đây.</p>
+        </div>
       </div>
     </div>
     <router-outlet></router-outlet>

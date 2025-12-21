@@ -133,10 +133,6 @@
   background: #ffffff;
 }
 
-.nav-link.highlight {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
-}
-
 .nav-link.logout {
   color: rgba(255, 180, 180, 0.95);
 }
@@ -215,97 +211,30 @@
   font-size: 32px;
   color: #2c3e50;
   font-weight: 700;
-  text-align: center;
 }
 
 .welcome-subtitle {
-  margin: 0 0 40px 0;
+  margin: 0 0 30px 0;
   font-size: 16px;
   color: #7f8c8d;
-  text-align: center;
   font-weight: 400;
 }
 
-.info-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  margin-top: 30px;
+.info-section {
+  background: #f8f9fa;
+  padding: 24px;
+  border-radius: 8px;
+  border-left: 4px solid #1e5faa;
 }
 
-.info-card {
-  background: white;
-  padding: 28px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  display: flex;
-  gap: 20px;
-  transition: all 0.3s ease;
-  border-left: 4px solid;
-  position: relative;
-  overflow: hidden;
-}
-
-.info-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, rgba(30, 95, 170, 0.1), transparent);
-  transform: translate(30%, -30%);
-}
-
-.info-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.info-card.primary {
-  border-color: #1e5faa;
-}
-
-.info-card.success {
-  border-color: #2ecc71;
-}
-
-.info-card.warning {
-  border-color: #f39c12;
-}
-
-.info-icon {
-  font-size: 48px;
-  width: 80px;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(30, 95, 170, 0.1), rgba(40, 116, 209, 0.2));
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-.info-card.success .info-icon {
-  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(46, 204, 113, 0.2));
-}
-
-.info-card.warning .info-icon {
-  background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(243, 156, 18, 0.2));
-}
-
-.info-content {
-  flex: 1;
-}
-
-.info-content h3 {
+.info-section h3 {
   margin: 0 0 10px 0;
   font-size: 20px;
   color: #2c3e50;
   font-weight: 700;
 }
 
-.info-content p {
+.info-section p {
   margin: 0;
   font-size: 14px;
   color: #7f8c8d;
@@ -349,9 +278,6 @@
   .welcome-title {
     font-size: 24px;
   }
-  .info-cards {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 480px) {
@@ -363,10 +289,5 @@
   }
   .welcome-title {
     font-size: 20px;
-  }
-  .info-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
   }
 }

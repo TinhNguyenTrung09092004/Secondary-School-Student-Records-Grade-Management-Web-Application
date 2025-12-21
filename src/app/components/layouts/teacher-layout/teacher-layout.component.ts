@@ -9,8 +9,8 @@ import { TeachingAssignmentService } from '../../../services/teachingassignment.
   selector: 'app-teacher-layout',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './teacher-layout.component.html'//,
-  //styleUrl: './teacher-layout.component.css'
+  templateUrl: './teacher-layout.component.html',
+  styleUrls: ['./teacher-layout.component.css']
 })
 export class TeacherLayoutComponent implements OnInit {
   showDashboard = true;

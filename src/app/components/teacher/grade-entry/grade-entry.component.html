@@ -1,345 +1,328 @@
-<h2>Nhập Điểm Học Sinh</h2>
-
-<div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
-  <button (click)="toggleCommentMode()"
-          style="padding: 8px 16px; background-color: #2196F3; color: white; border: none; cursor: pointer; border-radius: 4px;">
-    {{ isCommentMode ? 'Chuyển sang Điểm Số (10)' : 'Chuyển sang Nhận Xét (Pass/Fail)' }}
-  </button>
-  <button (click)="openImportDialog()"
-          style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;">
-    📥 Import từ Excel
-  </button>
-  <button (click)="openExportDialog()"
-          style="padding: 8px 16px; background-color: #FF9800; color: white; border: none; cursor: pointer; border-radius: 4px;">
-    📤 Export
-  </button>
-  <span style="font-weight: bold;">
-    Chế độ hiện tại: {{ isCommentMode ? 'Nhận Xét (Pass/Fail)' : 'Điểm Số (10)' }}
-  </span>
-</div>
-
-<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
-<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
-<p *ngIf="loading">Đang tải...</p>
-
-<!-- Selection filters -->
-<div style="margin-bottom: 20px;">
-  <div style="margin-bottom: 10px;">
-    <label>Lớp - Môn học:</label><br>
-    <select (change)="onClassChange($event)" style="width: 400px; padding: 5px;">
-      <option value="">-- Chọn lớp và môn học --</option>
-      <option *ngFor="let cls of teacherClasses" [value]="getClassSubjectKey(cls)">
-        {{ cls.className }} - {{ cls.subjectName }} ({{ cls.schoolYearName }})
-      </option>
-    </select>
+<div class="grade-container">
+  <div class="page-header">
+    <h2>Nhập Điểm Học Sinh</h2>
   </div>
 
-  <div style="margin-bottom: 10px;">
-    <label>Học kỳ:</label><br>
-    <select (change)="onSemesterChange($event)" style="width: 400px; padding: 5px;">
-      <option value="">-- Chọn học kỳ --</option>
-      <option *ngFor="let semester of semesters" [value]="semester.semesterId">
-        {{ semester.semesterName }}
-      </option>
-    </select>
-  </div>
-</div>
-
-<!-- Search box -->
-<div *ngIf="selectedClass && selectedSemester && studentGrades.length > 0" style="margin-bottom: 15px;">
-  <div style="display: flex; align-items: center; gap: 10px; max-width: 500px;">
-    <label style="font-weight: bold; white-space: nowrap;">Tìm kiếm:</label>
-    <div style="position: relative; flex: 1;">
-      <input type="text"
-             [(ngModel)]="searchQuery"
-             (input)="onSearchChange()"
-             placeholder="Nhập tên hoặc mã học sinh..."
-             style="width: 100%; padding: 8px 35px 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-      <button *ngIf="searchQuery"
-              (click)="clearSearch()"
-              style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #999; font-size: 18px; padding: 5px;"
-              title="Xóa tìm kiếm">
-        ×
-      </button>
-    </div>
-    <span *ngIf="searchQuery" style="color: #666; font-size: 14px;">
-      Tìm thấy: {{ filteredStudents.length }} / {{ studentGrades.length }}
+  <div class="toolbar">
+    <button (click)="toggleCommentMode()" class="btn btn-primary">
+      {{ isCommentMode ? 'Chuyển sang Điểm Số (10)' : 'Chuyển sang Nhận Xét (Pass/Fail)' }}
+    </button>
+    <button (click)="openImportDialog()" class="btn btn-success">
+      📥 Import từ Excel
+    </button>
+    <button (click)="openExportDialog()" class="btn btn-warning">
+      📤 Export
+    </button>
+    <span class="mode-indicator">
+      Chế độ hiện tại: {{ isCommentMode ? 'Nhận Xét (Pass/Fail)' : 'Điểm Số (10)' }}
     </span>
   </div>
-</div>
 
-<!-- Grade entry table -->
-<div *ngIf="selectedClass && selectedSemester && studentGrades.length > 0" style="overflow-x: auto;">
-  <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 20px;">
-    <thead>
-      <tr style="background-color: #f0f0f0;">
-        <th style="padding: 10px; text-align: left; min-width: 50px;">STT</th>
-        <th style="padding: 10px; text-align: left; min-width: 150px;">Họ và Tên</th>
-        <th *ngFor="let gradeType of gradeTypes"
-            style="padding: 10px; text-align: center; min-width: 100px;">
-          {{ gradeType.gradeTypeName }}<br>
-          <small>(Hệ số {{ gradeType.coefficient }})</small>
-        </th>
-        <th style="padding: 10px; text-align: center; min-width: 100px; background-color: #e8f5e9;">
-          Điểm Trung Bình
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let student of paginatedStudents; let i = index">
-        <td style="padding: 10px; text-align: center;">{{ startIndex + i + 1 }}</td>
-        <td style="padding: 10px;">{{ student.studentName }}</td>
-        <td *ngFor="let gradeType of gradeTypes"
-            style="padding: 5px; text-align: center; position: relative;">
-          <!-- Edit mode (shown regardless of whether grade exists) -->
-          <div *ngIf="isEditing(student.studentId, gradeType.gradeTypeId); else displayMode" style="display: flex; flex-direction: column; gap: 5px;">
-            <!-- Score input mode -->
-            <input *ngIf="!isCommentMode"
-                   type="number"
-                   [(ngModel)]="tempScore"
-                   min="0"
-                   max="10"
-                   step="0.25"
-                   style="width: 60px; padding: 5px; margin: 0 auto;"
-                   (keyup.enter)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
-                   (keyup.escape)="cancelEdit()">
-            <!-- Comment select mode -->
-            <select *ngIf="isCommentMode"
-                    [(ngModel)]="tempScore"
-                    style="width: 80px; padding: 5px; margin: 0 auto;"
-                    (keyup.enter)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
-                    (keyup.escape)="cancelEdit()">
-              <option value="">-- Chọn --</option>
-              <option value="Pass">Pass</option>
-              <option value="Fail">Fail</option>
-            </select>
-            <div style="display: flex; gap: 5px; justify-content: center;">
-              <button (click)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
-                      style="padding: 3px 8px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-                Lưu
-              </button>
-              <button (click)="cancelEdit()"
-                      style="padding: 3px 8px; background-color: #999; color: white; border: none; cursor: pointer;">
-                Hủy
-              </button>
+  <p *ngIf="errorMessage" class="message error-message">{{ errorMessage }}</p>
+  <p *ngIf="successMessage" class="message success-message">{{ successMessage }}</p>
+  <p *ngIf="loading" class="message loading-message">Đang tải...</p>
+
+  <!-- Selection filters -->
+  <div class="filter-section">
+    <div class="form-group">
+      <label class="form-label">Lớp - Môn học:</label>
+      <select (change)="onClassChange($event)" class="form-select">
+        <option value="">-- Chọn lớp và môn học --</option>
+        <option *ngFor="let cls of teacherClasses" [value]="getClassSubjectKey(cls)">
+          {{ cls.className }} - {{ cls.subjectName }} ({{ cls.schoolYearName }})
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Học kỳ:</label>
+      <select (change)="onSemesterChange($event)" class="form-select">
+        <option value="">-- Chọn học kỳ --</option>
+        <option *ngFor="let semester of semesters" [value]="semester.semesterId">
+          {{ semester.semesterName }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Search box -->
+  <div *ngIf="selectedClass && selectedSemester && studentGrades.length > 0" class="search-section">
+    <div class="search-wrapper">
+      <label class="form-label">Tìm kiếm:</label>
+      <div class="search-input-wrapper">
+        <input type="text"
+               [(ngModel)]="searchQuery"
+               (input)="onSearchChange()"
+               placeholder="Nhập tên hoặc mã học sinh..."
+               class="search-input">
+        <button *ngIf="searchQuery"
+                (click)="clearSearch()"
+                class="clear-btn"
+                title="Xóa tìm kiếm">
+          ×
+        </button>
+      </div>
+      <span *ngIf="searchQuery" class="search-result">
+        Tìm thấy: {{ filteredStudents.length }} / {{ studentGrades.length }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Grade entry table -->
+  <div *ngIf="selectedClass && selectedSemester && studentGrades.length > 0" class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Họ và Tên</th>
+          <th *ngFor="let gradeType of gradeTypes">
+            {{ gradeType.gradeTypeName }}<br>
+            <small>(Hệ số {{ gradeType.coefficient }})</small>
+          </th>
+          <th class="average-column">
+            Điểm Trung Bình
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of paginatedStudents; let i = index">
+          <td>{{ startIndex + i + 1 }}</td>
+          <td>{{ student.studentName }}</td>
+          <td *ngFor="let gradeType of gradeTypes">
+            <!-- Edit mode -->
+            <div *ngIf="isEditing(student.studentId, gradeType.gradeTypeId); else displayMode" class="edit-controls">
+              <!-- Score input mode -->
+              <input *ngIf="!isCommentMode"
+                     type="number"
+                     [(ngModel)]="tempScore"
+                     min="0"
+                     max="10"
+                     step="0.25"
+                     class="grade-input"
+                     (keyup.enter)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
+                     (keyup.escape)="cancelEdit()">
+              <!-- Comment select mode -->
+              <select *ngIf="isCommentMode"
+                      [(ngModel)]="tempScore"
+                      class="grade-select"
+                      (keyup.enter)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
+                      (keyup.escape)="cancelEdit()">
+                <option value="">-- Chọn --</option>
+                <option value="Pass">Pass</option>
+                <option value="Fail">Fail</option>
+              </select>
+              <div class="button-group">
+                <button (click)="saveGrade(student, getGradeForStudent(student, gradeType.gradeTypeId))"
+                        class="btn btn-success btn-small">
+                  Lưu
+                </button>
+                <button (click)="cancelEdit()"
+                        class="btn btn-secondary btn-small">
+                  Hủy
+                </button>
+              </div>
             </div>
-          </div>
 
-          <!-- Display mode -->
-          <ng-template #displayMode>
-            <ng-container *ngIf="getGradeForStudent(student, gradeType.gradeTypeId) as grade; else noGrade">
-              <!-- Display comment if in comment mode -->
-              <span *ngIf="grade.isComment && grade.comment"
-                    style="cursor: pointer; display: block; padding: 5px;"
-                    [style.color]="grade.comment === 'Pass' ? 'green' : 'red'"
-                    [style.font-weight]="'bold'"
-                    (click)="startEdit(student.studentId, gradeType.gradeTypeId, grade.score, grade.comment)">
-                {{ grade.comment }}
-              </span>
-              <!-- Display score if in score mode -->
-              <span *ngIf="!grade.isComment && grade.score !== null"
-                    style="cursor: pointer; display: block; padding: 5px;"
-                    (click)="startEdit(student.studentId, gradeType.gradeTypeId, grade.score, grade.comment)">
-                {{ grade.score }}
-              </span>
-              <!-- Show input button if no data -->
-              <button *ngIf="!grade.isComment && grade.score === null && !grade.comment"
-                      (click)="startEdit(student.studentId, gradeType.gradeTypeId, null)"
-                      style="padding: 5px 10px; cursor: pointer;">
-                Nhập điểm
-              </button>
-              <!-- Delete button (show only if there's data) -->
-              <button *ngIf="(grade.score !== null || grade.comment)"
-                      (click)="deleteGrade(grade)"
-                      style="margin-top: 5px; padding: 3px 8px; background-color: #f44336; color: white; border: none; cursor: pointer;"
-                      title="Xóa điểm">
-                ×
-              </button>
-            </ng-container>
-            <ng-template #noGrade>
-              <button (click)="startEdit(student.studentId, gradeType.gradeTypeId, null)"
-                      style="padding: 5px 10px; cursor: pointer;">
-                Nhập điểm
-              </button>
+            <!-- Display mode -->
+            <ng-template #displayMode>
+              <ng-container *ngIf="getGradeForStudent(student, gradeType.gradeTypeId) as grade; else noGrade">
+                <!-- Display comment if in comment mode -->
+                <span *ngIf="grade.isComment && grade.comment"
+                      class="grade-display"
+                      [style.color]="grade.comment === 'Pass' ? '#2ecc71' : '#e74c3c'"
+                      [style.font-weight]="'bold'"
+                      (click)="startEdit(student.studentId, gradeType.gradeTypeId, grade.score, grade.comment)">
+                  {{ grade.comment }}
+                </span>
+                <!-- Display score if in score mode -->
+                <span *ngIf="!grade.isComment && grade.score !== null"
+                      class="grade-display"
+                      (click)="startEdit(student.studentId, gradeType.gradeTypeId, grade.score, grade.comment)">
+                  {{ grade.score }}
+                </span>
+                <!-- Show input button if no data -->
+                <button *ngIf="!grade.isComment && grade.score === null && !grade.comment"
+                        (click)="startEdit(student.studentId, gradeType.gradeTypeId, null)"
+                        class="btn-enter">
+                  Nhập điểm
+                </button>
+                <!-- Delete button -->
+                <button *ngIf="(grade.score !== null || grade.comment)"
+                        (click)="deleteGrade(grade)"
+                        class="btn-delete"
+                        title="Xóa điểm">
+                  ×
+                </button>
+              </ng-container>
+              <ng-template #noGrade>
+                <button (click)="startEdit(student.studentId, gradeType.gradeTypeId, null)"
+                        class="btn-enter">
+                  Nhập điểm
+                </button>
+              </ng-template>
             </ng-template>
-          </ng-template>
-        </td>
-        <!-- Average column -->
-        <td style="padding: 10px; text-align: center; background-color: #f1f8e9; font-weight: bold;"
-            [style.color]="calculateAverage(student) === 'Fail' ? 'red' : (calculateAverage(student) === 'Pass' ? 'green' : '#333')">
-          {{ calculateAverage(student) }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          </td>
+          <!-- Average column -->
+          <td class="average-column"
+              [style.color]="calculateAverage(student) === 'Fail' ? '#e74c3c' : (calculateAverage(student) === 'Pass' ? '#2ecc71' : '#2c3e50')">
+            {{ calculateAverage(student) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
 
   <!-- Pagination Controls -->
-  <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <label>Số dòng mỗi trang:</label>
-      <select (change)="onPageSizeChange($event)" [value]="pageSize" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+  <div class="pagination">
+    <div class="pagination-info">
+      <label class="form-label">Số dòng mỗi trang:</label>
+      <select (change)="onPageSizeChange($event)" [value]="pageSize" class="page-size-select">
         <option value="5">5</option>
         <option value="10">10</option>
         <option value="20">20</option>
         <option value="50">50</option>
       </select>
-      <span style="color: #666;">
+      <span class="search-result">
         Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của {{ filteredStudents.length }} học sinh
         <span *ngIf="searchQuery">({{ studentGrades.length }} tổng số)</span>
       </span>
     </div>
 
-    <div style="display: flex; gap: 5px; align-items: center;">
+    <div class="pagination-controls">
       <button (click)="previousPage()"
               [disabled]="currentPage === 1"
-              style="padding: 8px 12px; background-color: #2196F3; color: white; border: none; cursor: pointer; border-radius: 4px;"
-              [style.opacity]="currentPage === 1 ? '0.5' : '1'"
-              [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              class="page-btn">
         ‹ Trước
       </button>
 
       <button *ngFor="let page of getPageNumbers()"
               (click)="goToPage(page)"
-              [style.background-color]="page === currentPage ? '#2196F3' : '#f0f0f0'"
-              [style.color]="page === currentPage ? 'white' : '#333'"
-              [style.font-weight]="page === currentPage ? 'bold' : 'normal'"
-              style="padding: 8px 12px; border: none; cursor: pointer; border-radius: 4px; min-width: 40px;">
+              [class.active]="page === currentPage"
+              class="page-btn">
         {{ page }}
       </button>
 
       <button (click)="nextPage()"
               [disabled]="currentPage === totalPages"
-              style="padding: 8px 12px; background-color: #2196F3; color: white; border: none; cursor: pointer; border-radius: 4px;"
-              [style.opacity]="currentPage === totalPages ? '0.5' : '1'"
-              [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              class="page-btn">
         Sau ›
       </button>
     </div>
   </div>
-</div>
 
-<!-- Empty state -->
-<div *ngIf="selectedClass && selectedSemester && studentGrades.length === 0 && !loading" style="margin-top: 20px; padding: 20px; background-color: #f9f9f9; text-align: center;">
-  <p>Không có học sinh nào trong lớp này.</p>
-</div>
+  <!-- Empty state -->
+  <div *ngIf="selectedClass && selectedSemester && studentGrades.length === 0 && !loading" class="empty-state">
+    <p>Không có học sinh nào trong lớp này.</p>
+  </div>
 
-<div *ngIf="selectedClass && selectedSemester && gradeTypes.length === 0 && !loading" style="margin-top: 20px; padding: 20px; background-color: #fff3cd; border: 1px solid #ffc107; text-align: center;">
-  <p style="color: #856404; margin: 0;"><strong>Chưa có loại điểm nào trong hệ thống!</strong></p>
-  <p style="color: #856404; margin: 5px 0 0 0;">Vui lòng liên hệ quản trị viên để thêm các loại điểm (Thường xuyên, Giữa kỳ, Cuối kỳ, v.v.)</p>
-</div>
+  <div *ngIf="selectedClass && selectedSemester && gradeTypes.length === 0 && !loading" class="warning-state">
+    <p><strong>Chưa có loại điểm nào trong hệ thống!</strong></p>
+    <p>Vui lòng liên hệ quản trị viên để thêm các loại điểm (Thường xuyên, Giữa kỳ, Cuối kỳ, v.v.)</p>
+  </div>
 
-<div *ngIf="!selectedClass || !selectedSemester" style="margin-top: 20px; padding: 20px; background-color: #f9f9f9; text-align: center;">
-  <p>Vui lòng chọn lớp, môn học và học kỳ để bắt đầu nhập điểm.</p>
-</div>
+  <div *ngIf="!selectedClass || !selectedSemester" class="empty-state">
+    <p>Vui lòng chọn lớp, môn học và học kỳ để bắt đầu nhập điểm.</p>
+  </div>
 
-<!-- Import Dialog -->
-<div *ngIf="showImportDialog" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-  <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%;">
-    <h3 style="margin-top: 0;">Import Điểm từ Excel</h3>
-
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; margin-bottom: 10px; font-weight: bold;">
-        Loại điểm:
-      </label>
-      <div style="display: flex; gap: 15px;">
-        <label style="display: flex; align-items: center; cursor: pointer;">
-          <input type="radio"
-                 [(ngModel)]="importScoreType"
-                 value="score"
-                 name="scoreType"
-                 style="margin-right: 5px;">
-          Điểm số (0-10)
-        </label>
-        <label style="display: flex; align-items: center; cursor: pointer;">
-          <input type="radio"
-                 [(ngModel)]="importScoreType"
-                 value="comment"
-                 name="scoreType"
-                 style="margin-right: 5px;">
-          Nhận xét (Pass/Fail)
-        </label>
+  <!-- Import Dialog -->
+  <div *ngIf="showImportDialog" class="modal-overlay" (click)="closeImportDialog()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Import Điểm từ Excel</h3>
       </div>
-    </div>
 
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; margin-bottom: 5px; font-weight: bold;">
-        Chọn file Excel:
-      </label>
-      <input type="file"
-             accept=".xlsx,.xls"
-             (change)="onFileSelected($event)"
-             style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-      <small style="color: #666; display: block; margin-top: 5px;">
-        File Excel phải có cột: Mã HS, Loại Điểm (ID), Điểm/Nhận xét
-      </small>
-    </div>
+      <div class="modal-section">
+        <label class="form-label">Loại điểm:</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio"
+                   [(ngModel)]="importScoreType"
+                   value="score"
+                   name="scoreType">
+            Điểm số (0-10)
+          </label>
+          <label class="radio-label">
+            <input type="radio"
+                   [(ngModel)]="importScoreType"
+                   value="comment"
+                   name="scoreType">
+            Nhận xét (Pass/Fail)
+          </label>
+        </div>
+      </div>
 
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <button (click)="closeImportDialog()"
-              style="padding: 10px 20px; background-color: #999; color: white; border: none; cursor: pointer; border-radius: 4px;">
-        Hủy
-      </button>
-      <button (click)="importGrades()"
-              [disabled]="!importFile"
-              style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;"
-              [style.opacity]="!importFile ? '0.5' : '1'">
-        Import
-      </button>
+      <div class="modal-section">
+        <label class="form-label">Chọn file Excel:</label>
+        <input type="file"
+               accept=".xlsx,.xls"
+               (change)="onFileSelected($event)"
+               class="file-input">
+        <small class="file-hint">
+          File Excel phải có cột: Mã HS, Loại Điểm (ID), Điểm/Nhận xét
+        </small>
+      </div>
+
+      <div class="modal-actions">
+        <button (click)="closeImportDialog()" class="btn btn-secondary">
+          Hủy
+        </button>
+        <button (click)="importGrades()"
+                [disabled]="!importFile"
+                class="btn btn-success">
+          Import
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Export Dialog -->
-<div *ngIf="showExportDialog" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-  <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%;">
-    <h3 style="margin-top: 0;">Export Bảng Điểm</h3>
-
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; margin-bottom: 10px; font-weight: bold;">
-        Chọn định dạng file:
-      </label>
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-          <input type="radio"
-                 [(ngModel)]="exportFormat"
-                 value="excel"
-                 name="exportFormat"
-                 style="margin-right: 10px;">
-          <span style="font-size: 20px; margin-right: 10px;">📊</span>
-          <span>Excel (.xlsx)</span>
-        </label>
-        <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-          <input type="radio"
-                 [(ngModel)]="exportFormat"
-                 value="word"
-                 name="exportFormat"
-                 style="margin-right: 10px;">
-          <span style="font-size: 20px; margin-right: 10px;">📄</span>
-          <span>Word (.docx)</span>
-        </label>
-        <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-          <input type="radio"
-                 [(ngModel)]="exportFormat"
-                 value="pdf"
-                 name="exportFormat"
-                 style="margin-right: 10px;">
-          <span style="font-size: 20px; margin-right: 10px;">📕</span>
-          <span>PDF (.pdf)</span>
-        </label>
+  <!-- Export Dialog -->
+  <div *ngIf="showExportDialog" class="modal-overlay" (click)="closeExportDialog()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Export Bảng Điểm</h3>
       </div>
-    </div>
 
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <button (click)="closeExportDialog()"
-              style="padding: 10px 20px; background-color: #999; color: white; border: none; cursor: pointer; border-radius: 4px;">
-        Hủy
-      </button>
-      <button (click)="exportGrades()"
-              [disabled]="!exportFormat"
-              style="padding: 10px 20px; background-color: #FF9800; color: white; border: none; cursor: pointer; border-radius: 4px;"
-              [style.opacity]="!exportFormat ? '0.5' : '1'">
-        Export
-      </button>
+      <div class="modal-section">
+        <label class="form-label">Chọn định dạng file:</label>
+        <div class="export-options">
+          <label class="export-option">
+            <input type="radio"
+                   [(ngModel)]="exportFormat"
+                   value="excel"
+                   name="exportFormat">
+            <span class="option-icon">📊</span>
+            <span>Excel (.xlsx)</span>
+          </label>
+          <label class="export-option">
+            <input type="radio"
+                   [(ngModel)]="exportFormat"
+                   value="word"
+                   name="exportFormat">
+            <span class="option-icon">📄</span>
+            <span>Word (.docx)</span>
+          </label>
+          <label class="export-option">
+            <input type="radio"
+                   [(ngModel)]="exportFormat"
+                   value="pdf"
+                   name="exportFormat">
+            <span class="option-icon">📕</span>
+            <span>PDF (.pdf)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button (click)="closeExportDialog()" class="btn btn-secondary">
+          Hủy
+        </button>
+        <button (click)="exportGrades()"
+                [disabled]="!exportFormat"
+                class="btn btn-warning">
+          Export
+        </button>
+      </div>
     </div>
   </div>
 </div>

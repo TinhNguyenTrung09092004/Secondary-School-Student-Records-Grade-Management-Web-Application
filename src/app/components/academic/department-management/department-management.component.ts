@@ -6,11 +6,18 @@ import { DepartmentDto, CreateDepartmentDto, UpdateDepartmentDto } from '../../.
 import { TeacherService } from '../../../services/teacher.service';
 import { TeacherDto } from '../../../models/teacher.model';
 
+interface Toast {
+  message: string;
+  type: 'success' | 'error';
+  closing?: boolean;
+}
+
 @Component({
   selector: 'app-department-management',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './department-management.component.html'
+  templateUrl: './department-management.component.html',
+  styleUrls: ['./department-management.component.css']
 })
 export class DepartmentManagementComponent implements OnInit {
   private departmentService = inject(DepartmentService);
@@ -24,6 +31,7 @@ export class DepartmentManagementComponent implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
+  toasts: Toast[] = [];
 
   newDepartment: CreateDepartmentDto = {
     departmentId: '',
@@ -169,17 +177,39 @@ export class DepartmentManagementComponent implements OnInit {
   showError(message: string): void {
     this.errorMessage = message;
     this.successMessage = '';
-    setTimeout(() => this.errorMessage = '', 5000);
+    this.showToast(message, 'error');
   }
 
   showSuccess(message: string): void {
     this.successMessage = message;
     this.errorMessage = '';
-    setTimeout(() => this.successMessage = '', 5000);
+    this.showToast(message, 'success');
   }
 
   clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  showToast(message: string, type: 'success' | 'error'): void {
+    const toast: Toast = { message, type };
+    this.toasts.push(toast);
+
+    setTimeout(() => {
+      const index = this.toasts.indexOf(toast);
+      if (index > -1) {
+        this.toasts[index].closing = true;
+        setTimeout(() => {
+          this.toasts = this.toasts.filter(t => t !== toast);
+        }, 300);
+      }
+    }, 5000);
+  }
+
+  removeToast(index: number): void {
+    this.toasts[index].closing = true;
+    setTimeout(() => {
+      this.toasts.splice(index, 1);
+    }, 300);
   }
 }

@@ -65,7 +65,7 @@
         <div class="stat-icon">⭐</div>
         <div class="stat-content">
           <h3>{{ stats.excellentStudents + stats.goodStudents }}</h3>
-          <p>Học Sinh Giỏi & Khá</p>
+          <p>Học Sinh Xuất Sắc & Giỏi</p>
         </div>
       </div>
     </div>
@@ -100,7 +100,7 @@
           <div class="chart-legend">
             <div class="legend-item">
               <span class="legend-color excellent"></span>
-              <span class="legend-label">Giỏi: {{ performanceDistribution.excellent }} ({{ getPerformancePercentage('excellent').toFixed(1) }}%)</span>
+              <span class="legend-label">Tốt: {{ performanceDistribution.excellent }} ({{ getPerformancePercentage('excellent').toFixed(1) }}%)</span>
             </div>
             <div class="legend-item">
               <span class="legend-color good"></span>
@@ -108,11 +108,11 @@
             </div>
             <div class="legend-item">
               <span class="legend-color average"></span>
-              <span class="legend-label">TB: {{ performanceDistribution.average }} ({{ getPerformancePercentage('average').toFixed(1) }}%)</span>
+              <span class="legend-label">Đạt: {{ performanceDistribution.average }} ({{ getPerformancePercentage('average').toFixed(1) }}%)</span>
             </div>
             <div class="legend-item">
               <span class="legend-color below-average"></span>
-              <span class="legend-label">Yếu: {{ performanceDistribution.belowAverage }} ({{ getPerformancePercentage('belowAverage').toFixed(1) }}%)</span>
+              <span class="legend-label">Chưa đạt: {{ performanceDistribution.belowAverage }} ({{ getPerformancePercentage('belowAverage').toFixed(1) }}%)</span>
             </div>
           </div>
         </div>
@@ -179,13 +179,13 @@
         <div class="chart-body">
           <div class="donut-chart">
             <div class="donut-segments">
-              <div *ngFor="let conduct of ['Tốt', 'Khá', 'Trung bình', 'Yếu']; let i = index" class="donut-item">
+              <div *ngFor="let conduct of ['Tốt', 'Khá', 'Đạt', 'Chưa đạt']; let i = index" class="donut-item">
                 <div class="donut-bar">
                   <div class="donut-fill"
                        [class.conduct-excellent]="conduct === 'Tốt'"
                        [class.conduct-good]="conduct === 'Khá'"
-                       [class.conduct-average]="conduct === 'Trung bình'"
-                       [class.conduct-poor]="conduct === 'Yếu'"
+                       [class.conduct-average]="conduct === 'Đạt'"
+                       [class.conduct-poor]="conduct === 'Chưa đạt'"
                        [style.width.%]="getConductPercentage(conduct)">
                   </div>
                 </div>

@@ -171,11 +171,11 @@ export class PrincipalDashboardComponent implements OnInit {
           // Academic performance distribution
           const performance = student.yearAcademicPerformance || student.semester2AcademicPerformance || student.semester1AcademicPerformance;
           if (performance) {
-            if (performance === 'Xuất sắc' || performance === 'Giỏi') {
+            if (performance === 'Xuất sắc' || performance === 'Tốt') {
               excellent++;
             } else if (performance === 'Khá') {
               good++;
-            } else if (performance === 'Trung bình') {
+            } else if (performance === 'Đạt') {
               average++;
             } else {
               belowAverage++;

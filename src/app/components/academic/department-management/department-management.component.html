@@ -1,54 +1,65 @@
-<h2>Quản Lý Tổ Bộ Môn</h2>
-<button (click)="openCreateModal()">Thêm Tổ Bộ Môn Mới</button>
+<div class="department-container">
+  <div class="page-header">
+    <h2>Quản Lý Tổ Bộ Môn</h2>
+    <button class="btn btn-primary" (click)="openCreateModal()">+ Thêm Tổ Bộ Môn Mới</button>
+  </div>
 
-<p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
-<p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
-<p *ngIf="loading">Đang tải...</p>
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+  </div>
 
-<table border="1" style="width: 100%; margin-top: 20px;">
-  <thead>
-    <tr>
-      <th>Mã Tổ BM</th>
-      <th>Tên Tổ Bộ Môn</th>
-      <th>Trưởng Khoa</th>
-      <th>Số Giáo Viên</th>
-      <th>Hành động</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let department of departmentList">
-      <td>{{ department.departmentId }}</td>
-      <td>{{ department.departmentName }}</td>
-      <td>{{ department.headTeacherName || '(Chưa có)' }}</td>
-      <td>{{ department.teacherCount }}</td>
-      <td>
-        <button (click)="openEditModal(department)" title="Chỉnh sửa">Sửa</button>
-        <button (click)="deleteDepartment(department)" title="Xóa">Xóa</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+  <div *ngIf="!loading && departmentList.length > 0" class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Mã Tổ BM</th>
+          <th>Tên Tổ Bộ Môn</th>
+          <th>Trưởng Khoa</th>
+          <th>Số Giáo Viên</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let department of departmentList">
+          <td>{{ department.departmentId }}</td>
+          <td>{{ department.departmentName }}</td>
+          <td>{{ department.headTeacherName || '(Chưa có)' }}</td>
+          <td>{{ department.teacherCount }}</td>
+          <td>
+            <button class="btn btn-edit" (click)="openEditModal(department)" title="Chỉnh sửa">✏️ Sửa</button>
+            <button class="btn btn-delete" (click)="deleteDepartment(department)" title="Xóa">🗑️ Xóa</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<!-- Create Modal -->
-<div *ngIf="showCreateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeCreateModal()">
-  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 500px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
-    <h3>Thêm Tổ Bộ Môn Mới</h3>
-    <button (click)="closeCreateModal()" style="float: right;">×</button>
-    <br><br>
+  <div *ngIf="!loading && departmentList.length === 0" class="empty-state">
+    <p>Chưa có tổ bộ môn nào</p>
+  </div>
+</div>
 
-    <div>
-      <label>Mã Tổ Bộ Môn: *</label><br>
-      <input type="text" [(ngModel)]="newDepartment.departmentId" maxlength="6" required style="width: 95%;" placeholder="VD: DEPT01">
+<div *ngIf="showCreateModal" class="modal-overlay" (click)="closeCreateModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Thêm Tổ Bộ Môn Mới</h3>
+      <button class="close-btn" (click)="closeCreateModal()">&times;</button>
     </div>
 
-    <div style="margin-top: 15px;">
-      <label>Tên Tổ Bộ Môn: *</label><br>
-      <input type="text" [(ngModel)]="newDepartment.departmentName" maxlength="50" required style="width: 95%;">
+    <div class="form-group">
+      <label class="form-label">Mã Tổ Bộ Môn <span class="required">*</span></label>
+      <input type="text" class="form-control" [(ngModel)]="newDepartment.departmentId" maxlength="6" placeholder="VD: DEPT01">
     </div>
 
-    <div style="margin-top: 15px;">
-      <label>Trưởng Khoa: (Tùy chọn)</label><br>
-      <select [(ngModel)]="newDepartment.headTeacherId" style="width: 95%; padding: 5px;">
+    <div class="form-group">
+      <label class="form-label">Tên Tổ Bộ Môn <span class="required">*</span></label>
+      <input type="text" class="form-control" [(ngModel)]="newDepartment.departmentName" maxlength="50" placeholder="Nhập tên tổ bộ môn">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Trưởng Khoa (Tùy chọn)</label>
+      <select class="form-select" [(ngModel)]="newDepartment.headTeacherId">
         <option value="">-- Chọn giáo viên --</option>
         <option *ngFor="let teacher of teacherList" [value]="teacher.teacherId">
           {{ teacher.teacherId }} - {{ teacher.teacherName }}
@@ -56,33 +67,33 @@
       </select>
     </div>
 
-    <div style="margin-top: 20px;">
-      <button (click)="closeCreateModal()">Hủy</button>
-      <button (click)="createDepartment()">Tạo</button>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="closeCreateModal()">Hủy</button>
+      <button class="btn btn-success" (click)="createDepartment()">✓ Tạo</button>
     </div>
   </div>
 </div>
 
-<!-- Edit Modal -->
-<div *ngIf="showEditModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto;" (click)="closeEditModal()">
-  <div style="position: relative; top: 20px; left: 50%; transform: translateX(-50%); width: 500px; background: white; padding: 20px; border: 1px solid black; margin-bottom: 20px;" (click)="$event.stopPropagation()">
-    <h3>Chỉnh Sửa Tổ Bộ Môn</h3>
-    <button (click)="closeEditModal()" style="float: right;">×</button>
-    <br><br>
-
-    <div>
-      <label>Mã Tổ Bộ Môn:</label><br>
-      <input type="text" [value]="selectedDepartment?.departmentId" disabled style="width: 95%;">
+<div *ngIf="showEditModal" class="modal-overlay" (click)="closeEditModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Chỉnh Sửa Tổ Bộ Môn</h3>
+      <button class="close-btn" (click)="closeEditModal()">&times;</button>
     </div>
 
-    <div style="margin-top: 15px;">
-      <label>Tên Tổ Bộ Môn: *</label><br>
-      <input type="text" [(ngModel)]="editDepartment.departmentName" maxlength="50" required style="width: 95%;">
+    <div class="form-group">
+      <label class="form-label">Mã Tổ Bộ Môn</label>
+      <input type="text" class="form-control" [value]="selectedDepartment?.departmentId" disabled>
     </div>
 
-    <div style="margin-top: 15px;">
-      <label>Trưởng Khoa: (Tùy chọn)</label><br>
-      <select [(ngModel)]="editDepartment.headTeacherId" style="width: 95%; padding: 5px;">
+    <div class="form-group">
+      <label class="form-label">Tên Tổ Bộ Môn <span class="required">*</span></label>
+      <input type="text" class="form-control" [(ngModel)]="editDepartment.departmentName" maxlength="50">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Trưởng Khoa (Tùy chọn)</label>
+      <select class="form-select" [(ngModel)]="editDepartment.headTeacherId">
         <option value="">-- Chọn giáo viên --</option>
         <option *ngFor="let teacher of teacherList" [value]="teacher.teacherId">
           {{ teacher.teacherId }} - {{ teacher.teacherName }}
@@ -90,9 +101,20 @@
       </select>
     </div>
 
-    <div style="margin-top: 20px;">
-      <button (click)="closeEditModal()">Hủy</button>
-      <button (click)="updateDepartment()">Cập nhật</button>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="closeEditModal()">Hủy</button>
+      <button class="btn btn-primary" (click)="updateDepartment()">💾 Cập nhật</button>
     </div>
+  </div>
+</div>
+
+<div class="toast-container">
+  <div *ngFor="let toast of toasts; let i = index"
+       [class]="'toast ' + toast.type + (toast.closing ? ' slide-out' : '')">
+    <div class="toast-icon">{{ toast.type === 'success' ? '✓' : '✕' }}</div>
+    <div class="toast-content">
+      <p class="toast-message">{{ toast.message }}</p>
+    </div>
+    <button class="toast-close" (click)="removeToast(i)">&times;</button>
   </div>
 </div>

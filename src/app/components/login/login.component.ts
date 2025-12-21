@@ -14,7 +14,8 @@ declare var msal: any;
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './login.component.html'
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
   email = '';
@@ -87,10 +88,28 @@ export class LoginComponent implements OnInit {
       callback: (response: any) => this.handleGoogleLogin(response)
     });
 
-    google.accounts.id.renderButton(
-      document.getElementById('google-button'),
-      { theme: 'outline', size: 'large', width: 300, text: 'signin_with' }
-    );
+    // Render button in hidden container
+    const container = document.getElementById('google-button');
+    if (container) {
+      google.accounts.id.renderButton(container, {
+        theme: 'outline',
+        size: 'large'
+      });
+    }
+
+    // Cancel auto-prompt to prevent One Tap badge
+    google.accounts.id.cancel();
+  }
+
+  loginWithGoogle() {
+    // Trigger the hidden Google button click
+    const container = document.getElementById('google-button');
+    if (container) {
+      const googleBtn = container.querySelector('div[role="button"]') as HTMLElement;
+      if (googleBtn) {
+        googleBtn.click();
+      }
+    }
   }
 
   private handleGoogleLogin(response: any) {
