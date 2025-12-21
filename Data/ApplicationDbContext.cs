@@ -34,6 +34,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Regulation> Regulations { get; set; }
     public DbSet<BackupSchedule> BackupSchedules { get; set; }
     public DbSet<Department> Departments { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<SystemSetting> SystemSettings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +49,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<ClassSemesterResult>().HasKey(k => new { k.ClassId, k.SchoolYearId, k.SemesterId });
 
         modelBuilder.Entity<Regulation>().HasNoKey();
+        modelBuilder.Entity<SystemSetting>().HasKey(s => s.Key);
 
         // Configure Department-Teacher relationship to avoid circular reference
         modelBuilder.Entity<Department>()

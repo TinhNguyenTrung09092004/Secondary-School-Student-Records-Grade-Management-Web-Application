@@ -10,24 +10,51 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IUserManagementService _userManagementService;
+    private readonly ICaptchaService _captchaService;
 
-    public AuthController(IAuthService authService, IUserManagementService userManagementService)
+    public AuthController(IAuthService authService, IUserManagementService userManagementService, ICaptchaService captchaService)
     {
         _authService = authService;
         _userManagementService = userManagementService;
+        _captchaService = captchaService;
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
+        // Check if captcha is required
+        if (_captchaService.RequiresCaptcha(request.Email))
+        {
+            if (string.IsNullOrEmpty(request.CaptchaToken) || string.IsNullOrEmpty(request.CaptchaAnswer))
+            {
+                return BadRequest(new { message = "Vui lòng hoàn thành captcha", requiresCaptcha = true });
+            }
+
+            if (!_captchaService.VerifyCaptcha(request.CaptchaToken, request.CaptchaAnswer))
+            {
+                return BadRequest(new { message = "Captcha không đúng", requiresCaptcha = true });
+            }
+        }
+
         var result = await _authService.LoginAsync(request);
 
         if (result == null)
         {
-            return Unauthorized(new { message = "Email hoặc mật khẩu không đúng" });
+            _captchaService.RecordFailedAttempt(request.Email);
+            var requiresCaptcha = _captchaService.RequiresCaptcha(request.Email);
+            return Unauthorized(new { message = "Email hoặc mật khẩu không đúng", requiresCaptcha });
         }
 
+        // Reset failed attempts on successful login
+        _captchaService.ResetAttempts(request.Email);
         return Ok(result);
+    }
+
+    [HttpGet("captcha")]
+    public IActionResult GetCaptcha()
+    {
+        var (question, token) = _captchaService.GenerateCaptcha();
+        return Ok(new { question, token });
     }
 
     [HttpPost("external-login")]

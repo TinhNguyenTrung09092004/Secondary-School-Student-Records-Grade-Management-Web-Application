@@ -12,17 +12,20 @@ public class UserManagementService : IUserManagementService
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly IAuditService _auditService;
 
     public UserManagementService(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IEmailService emailService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IAuditService auditService)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _emailService = emailService;
         _configuration = configuration;
+        _auditService = auditService;
     }
 
     public async Task<List<UserDto>> GetAllUsersAsync()
@@ -70,7 +73,7 @@ public class UserManagementService : IUserManagementService
         };
     }
 
-    public async Task<UserDto?> CreateUserAsync(CreateUserDto createUserDto)
+    public async Task<UserDto?> CreateUserAsync(CreateUserDto createUserDto, string? currentUserId = null, string? currentUserEmail = null)
     {
         var setupToken = GenerateSecureToken();
 
@@ -108,6 +111,19 @@ public class UserManagementService : IUserManagementService
         await _emailService.SendAccountSetupEmailAsync(user.Email, setupLink);
 
         var roles = await _userManager.GetRolesAsync(user);
+
+        // Log audit event
+        await _auditService.LogAsync(
+            performedByUserId: currentUserId,
+            performedByEmail: currentUserEmail,
+            action: "CreateUser",
+            entity: "User",
+            targetUserId: user.Id,
+            targetEmail: user.Email,
+            newValues: new { Email = user.Email, Roles = roles.ToList() },
+            additionalInfo: "User account created and setup email sent"
+        );
+
         return new UserDto
         {
             Id = user.Id,
@@ -122,10 +138,13 @@ public class UserManagementService : IUserManagementService
         };
     }
 
-    public async Task<UserDto?> UpdateUserAsync(string userId, UpdateUserDto updateUserDto)
+    public async Task<UserDto?> UpdateUserAsync(string userId, UpdateUserDto updateUserDto, string? currentUserId = null, string? currentUserEmail = null)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null || user.IsDeleted) return null;
+
+        var oldEmail = user.Email;
+        var currentRoles = await _userManager.GetRolesAsync(user);
 
         user.Email = updateUserDto.Email;
         user.UserName = updateUserDto.Email;
@@ -133,7 +152,6 @@ public class UserManagementService : IUserManagementService
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded) return null;
 
-        var currentRoles = await _userManager.GetRolesAsync(user);
         await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
         if (updateUserDto.Roles.Any())
@@ -152,6 +170,20 @@ public class UserManagementService : IUserManagementService
         }
 
         var roles = await _userManager.GetRolesAsync(user);
+
+        // Log audit event
+        await _auditService.LogAsync(
+            performedByUserId: currentUserId,
+            performedByEmail: currentUserEmail,
+            action: "UpdateUser",
+            entity: "User",
+            targetUserId: user.Id,
+            targetEmail: user.Email,
+            oldValues: new { Email = oldEmail, Roles = currentRoles.ToList() },
+            newValues: new { Email = user.Email, Roles = roles.ToList() },
+            additionalInfo: "User information and roles updated"
+        );
+
         return new UserDto
         {
             Id = user.Id,
@@ -196,7 +228,7 @@ public class UserManagementService : IUserManagementService
         return true;
     }
 
-    public async Task<bool> DeleteUserAsync(string userId)
+    public async Task<bool> DeleteUserAsync(string userId, string? currentUserId = null, string? currentUserEmail = null)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null || user.IsDeleted) return false;
@@ -232,13 +264,28 @@ public class UserManagementService : IUserManagementService
 
         await _emailService.SendAccountDeletionScheduledEmailAsync(user.Email!, user.ScheduledDeletionDate.Value);
 
+        // Log audit event
+        await _auditService.LogAsync(
+            performedByUserId: currentUserId,
+            performedByEmail: currentUserEmail,
+            action: "DeleteUser",
+            entity: "User",
+            targetUserId: user.Id,
+            targetEmail: user.Email,
+            oldValues: new { IsDeleted = false, Roles = userRoles.ToList() },
+            newValues: new { IsDeleted = true, ScheduledDeletionDate = user.ScheduledDeletionDate },
+            additionalInfo: $"User scheduled for deletion on {user.ScheduledDeletionDate:yyyy-MM-dd}"
+        );
+
         return true;
     }
 
-    public async Task<bool> CancelDeletionAsync(string userId)
+    public async Task<bool> CancelDeletionAsync(string userId, string? currentUserId = null, string? currentUserEmail = null)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null || !user.IsDeleted) return false;
+
+        var previousDeletionDate = user.ScheduledDeletionDate;
 
         user.IsDeleted = false;
         user.DeletedAt = null;
@@ -251,10 +298,23 @@ public class UserManagementService : IUserManagementService
 
         await _emailService.SendAccountDeletionCancelledEmailAsync(user.Email!);
 
+        // Log audit event
+        await _auditService.LogAsync(
+            performedByUserId: currentUserId,
+            performedByEmail: currentUserEmail,
+            action: "CancelDeletion",
+            entity: "User",
+            targetUserId: user.Id,
+            targetEmail: user.Email,
+            oldValues: new { IsDeleted = true, ScheduledDeletionDate = previousDeletionDate },
+            newValues: new { IsDeleted = false, ScheduledDeletionDate = (DateTime?)null },
+            additionalInfo: "User deletion cancelled and account restored"
+        );
+
         return true;
     }
 
-    public async Task<bool> ToggleUserLockoutAsync(string userId, string? currentUserId)
+    public async Task<bool> ToggleUserLockoutAsync(string userId, string? currentUserId, string? currentUserEmail = null)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null || user.IsDeleted) return false;
@@ -270,11 +330,37 @@ public class UserManagementService : IUserManagementService
         {
             await _userManager.SetLockoutEndDateAsync(user, null);
             await _emailService.SendAccountUnlockedEmailAsync(user.Email!);
+
+            // Log audit event
+            await _auditService.LogAsync(
+                performedByUserId: currentUserId,
+                performedByEmail: currentUserEmail,
+                action: "UnlockUser",
+                entity: "User",
+                targetUserId: user.Id,
+                targetEmail: user.Email,
+                oldValues: new { IsLockedOut = true },
+                newValues: new { IsLockedOut = false },
+                additionalInfo: "User account unlocked"
+            );
         }
         else
         {
             await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
             await _emailService.SendAccountLockedEmailAsync(user.Email!);
+
+            // Log audit event
+            await _auditService.LogAsync(
+                performedByUserId: currentUserId,
+                performedByEmail: currentUserEmail,
+                action: "LockUser",
+                entity: "User",
+                targetUserId: user.Id,
+                targetEmail: user.Email,
+                oldValues: new { IsLockedOut = false },
+                newValues: new { IsLockedOut = true },
+                additionalInfo: "User account locked"
+            );
         }
 
         return true;
@@ -301,7 +387,7 @@ public class UserManagementService : IUserManagementService
         return roleDtos;
     }
 
-    public async Task<bool> UpdateUserRolesAsync(string userId, UserRoleUpdateDto roleUpdateDto)
+    public async Task<bool> UpdateUserRolesAsync(string userId, UserRoleUpdateDto roleUpdateDto, string? currentUserId = null, string? currentUserEmail = null)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null || user.IsDeleted) return false;
@@ -325,8 +411,38 @@ public class UserManagementService : IUserManagementService
         if (roleUpdateDto.Roles.Any())
         {
             var result = await _userManager.AddToRolesAsync(user, roleUpdateDto.Roles);
+
+            if (result.Succeeded)
+            {
+                // Log audit event
+                await _auditService.LogAsync(
+                    performedByUserId: currentUserId,
+                    performedByEmail: currentUserEmail,
+                    action: "UpdateUserRoles",
+                    entity: "User",
+                    targetUserId: user.Id,
+                    targetEmail: user.Email,
+                    oldValues: new { Roles = currentRoles.ToList() },
+                    newValues: new { Roles = roleUpdateDto.Roles },
+                    additionalInfo: "User roles updated"
+                );
+            }
+
             return result.Succeeded;
         }
+
+        // Log audit event when all roles removed
+        await _auditService.LogAsync(
+            performedByUserId: currentUserId,
+            performedByEmail: currentUserEmail,
+            action: "UpdateUserRoles",
+            entity: "User",
+            targetUserId: user.Id,
+            targetEmail: user.Email,
+            oldValues: new { Roles = currentRoles.ToList() },
+            newValues: new { Roles = new List<string>() },
+            additionalInfo: "All user roles removed"
+        );
 
         return true;
     }

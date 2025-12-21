@@ -221,6 +221,52 @@ C:\Users\tinh8\Documents\Project\API
         SchoolYearService.cs
         SemesterService.cs
         StudentService.cs
+        IStudentService.cs
+        IStudentSubjectResultService.cs
+        ISubjectService.cs
+        ITeacherService.cs
+        ITeachingAssignmentService.cs
+        IUserManagementService.cs
+        OccupationService.cs
+        ReligionService.cs
+        ResultService.cs
+        SchoolYearService.cs
+        SemesterService.cs
+        StudentService.cs
+        ISubjectService.cs
+        ITeacherService.cs
+        ITeachingAssignmentService.cs
+        IUserManagementService.cs
+        OccupationService.cs
+        ReligionService.cs
+        ResultService.cs
+        SchoolYearService.cs
+        SemesterService.cs
+        StudentService.cs
+        IUserManagementService.cs
+        OccupationService.cs
+        ReligionService.cs
+        ResultService.cs
+        SchoolYearService.cs
+        SemesterService.cs
+        StudentService.cs
+        ReligionService.cs
+        ResultService.cs
+        SchoolYearService.cs
+        SemesterService.cs
+        StudentService.cs
+        ResultService.cs
+        SchoolYearService.cs
+        SemesterService.cs
+        StudentService.cs
+        SchoolYearService.cs
+        SemesterService.cs
+        StudentService.cs
+        SemesterService.cs
+        StudentService.cs
+        StudentSubjectResultService.cs
+        StudentService.cs
+        StudentSubjectResultService.cs
         StudentSubjectResultService.cs
         SubjectService.cs
         TeacherService.cs

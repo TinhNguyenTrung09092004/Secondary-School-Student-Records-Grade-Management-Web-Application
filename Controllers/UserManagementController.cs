@@ -23,6 +23,11 @@ public class UserManagementController : ControllerBase
         return User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
     }
 
+    private string? GetCurrentUserEmail()
+    {
+        return User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+    }
+
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsers()
     {
@@ -44,7 +49,10 @@ public class UserManagementController : ControllerBase
     [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
     {
-        var user = await _userManagementService.CreateUserAsync(createUserDto);
+        var currentUserId = GetCurrentUserId();
+        var currentUserEmail = GetCurrentUserEmail();
+
+        var user = await _userManagementService.CreateUserAsync(createUserDto, currentUserId, currentUserEmail);
         if (user == null)
         {
             return BadRequest(new { message = "Không thể tạo người dùng" });
@@ -55,7 +63,10 @@ public class UserManagementController : ControllerBase
     [HttpPut("users/{userId}")]
     public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserDto updateUserDto)
     {
-        var user = await _userManagementService.UpdateUserAsync(userId, updateUserDto);
+        var currentUserId = GetCurrentUserId();
+        var currentUserEmail = GetCurrentUserEmail();
+
+        var user = await _userManagementService.UpdateUserAsync(userId, updateUserDto, currentUserId, currentUserEmail);
         if (user == null)
         {
             return BadRequest(new { message = "Không thể cập nhật người dùng" });
@@ -74,6 +85,7 @@ public class UserManagementController : ControllerBase
     public async Task<IActionResult> DeleteUser(string userId)
     {
         var currentUserId = GetCurrentUserId();
+        var currentUserEmail = GetCurrentUserEmail();
 
         // Prevent admin from deleting themselves
         if (userId == currentUserId)
@@ -81,7 +93,7 @@ public class UserManagementController : ControllerBase
             return BadRequest(new { message = "Bạn không thể xóa chính mình" });
         }
 
-        var result = await _userManagementService.DeleteUserAsync(userId);
+        var result = await _userManagementService.DeleteUserAsync(userId, currentUserId, currentUserEmail);
         if (!result)
         {
             return BadRequest(new { message = "Không thể xóa người dùng. Hệ thống phải có ít nhất 1 Admin." });
@@ -92,7 +104,10 @@ public class UserManagementController : ControllerBase
     [HttpPost("users/{userId}/cancel-deletion")]
     public async Task<IActionResult> CancelDeletion(string userId)
     {
-        var result = await _userManagementService.CancelDeletionAsync(userId);
+        var currentUserId = GetCurrentUserId();
+        var currentUserEmail = GetCurrentUserEmail();
+
+        var result = await _userManagementService.CancelDeletionAsync(userId, currentUserId, currentUserEmail);
         if (!result)
         {
             return BadRequest(new { message = "Không thể hủy xóa người dùng" });
@@ -104,7 +119,9 @@ public class UserManagementController : ControllerBase
     public async Task<IActionResult> ToggleUserLockout(string userId)
     {
         var currentUserId = GetCurrentUserId();
-        var result = await _userManagementService.ToggleUserLockoutAsync(userId, currentUserId);
+        var currentUserEmail = GetCurrentUserEmail();
+
+        var result = await _userManagementService.ToggleUserLockoutAsync(userId, currentUserId, currentUserEmail);
         if (!result)
         {
             return BadRequest(new { message = "Không thể thay đổi trạng thái khóa. Bạn không thể khóa tài khoản của chính mình." });
@@ -122,7 +139,10 @@ public class UserManagementController : ControllerBase
     [HttpPut("users/{userId}/roles")]
     public async Task<IActionResult> UpdateUserRoles(string userId, [FromBody] UserRoleUpdateDto roleUpdateDto)
     {
-        var result = await _userManagementService.UpdateUserRolesAsync(userId, roleUpdateDto);
+        var currentUserId = GetCurrentUserId();
+        var currentUserEmail = GetCurrentUserEmail();
+
+        var result = await _userManagementService.UpdateUserRolesAsync(userId, roleUpdateDto, currentUserId, currentUserEmail);
         if (!result)
         {
             return BadRequest(new { message = "Không thể cập nhật quyền" });
