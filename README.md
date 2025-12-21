@@ -42,7 +42,7 @@ DB_PASSWORD=your_postgres_password
 ### JWT Configuration
 ```
 JWT_KEY=your_secret_key_here_at_least_32_characters
-JWT_ISSUER=https://localhost:7000
+JWT_ISSUER=https://localhost:5244
 JWT_AUDIENCE=https://localhost:4200
 ```
 
@@ -86,8 +86,8 @@ dotnet run
 ```
 
 The API will be available at:
-- HTTP: `http://localhost:5000`
-- HTTPS: `https://localhost:7000`
+- HTTP: `http://localhost:5244`
+- HTTPS: `https://localhost:7187`
 
 ### Production Mode
 ```bash
@@ -98,7 +98,7 @@ dotnet run --configuration Release
 
 When running in development mode, you can access the Swagger UI documentation at:
 ```
-https://localhost:7000/swagger
+https://localhost:5244/swagger
 ```
 
 This provides interactive API documentation where you can test all endpoints.
