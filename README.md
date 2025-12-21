@@ -117,18 +117,139 @@ OAuth authentication is also available through Google and Microsoft.
 
 ## Key Features
 
-- **User Management**: Authentication, authorization, and role-based access control
-- **Student Management**: Student records and information
-- **Teacher Management**: Teacher profiles and department assignments
-- **Class Management**: Class creation and student assignments
-- **Grade Management**: Academic performance tracking and grading
-- **Subject Management**: Subject definitions and configurations
-- **School Year & Semester Management**: Academic calendar management
-- **Conduct & Behavior Tracking**: Student conduct and behavior records
-- **Academic Rankings**: Performance rankings and statistics
-- **Backup Service**: Automated database backup scheduling
-- **Email Notifications**: SMTP-based email service
-- **Face Recognition**: Student identification service
+### Authentication & Security
+- **JWT Authentication**: Secure token-based authentication with role-based access control
+- **OAuth Integration**: Google and Microsoft external login support
+- **Password Management**:
+  - Self-service password change for all authenticated users
+  - Forgot password with email-based reset
+  - Account setup flow - new users set their own passwords via email link
+- **CAPTCHA Protection**: Automatic CAPTCHA requirement after failed login attempts
+- **Face Recognition**: Biometric authentication and student identification
+
+### User Management
+- **Multi-Role Support**: Admin, Principal, AcademicAffairs, DepartmentHead, SubjectTeacher, Homeroom
+- **User CRUD Operations**: Create, read, update users with email-based account setup
+- **Role Management**: Assign and manage multiple roles per user
+- **Account Lockout**: Manually lock/unlock user accounts
+- **Scheduled Deletion**: 30-day soft delete with cancellation option
+- **Account Cleanup**: Automatic removal of expired accounts and setup tokens
+- **Audit Logging**: Comprehensive audit trail for all user management actions
+
+### Academic Management
+- **Student Management**: Complete student records with personal information, ethnicity, religion, occupation tracking
+- **Teacher Management**: Teacher profiles with department and subject assignments
+- **Class Management**: Class creation, student enrollment, and homeroom teacher assignment
+- **Class Assignment**: Automated and manual student-to-class assignment
+- **Teaching Assignment**: Department heads assign teachers to classes and subjects
+- **Grade Management**: Multi-type grading (regular, midterm, final) with academic performance tracking
+- **Conduct Grading**: Student behavior and conduct assessment
+- **Academic Rankings**: Automated performance rankings and statistics
+- **Subject Management**: Subject definitions with grade level associations
+- **Department Management**: Subject department organization
+- **School Year & Semester Management**: Academic calendar with term management
+- **Result Management**: Comprehensive academic results tracking and reporting
+
+### System Administration
+- **Backup Service**:
+  - Automated database backup scheduling (daily, weekly, monthly)
+  - On-demand backup creation
+  - Backup history tracking
+- **System Settings**: Customizable school logo and branding
+- **Principal Dashboard**: Overview statistics and system insights
+- **Email Notifications**: Automated emails for:
+  - Account setup and password reset
+  - Account lockout/unlock notifications
+  - Scheduled deletion warnings
+  - Deletion cancellation confirmations
+
+### Data Management
+- **Ethnicity, Religion, Occupation**: Configurable reference data
+- **Grade Levels**: Grade level definitions and management
+- **Grade Types**: Customizable grade type configurations
+- **Conduct Definitions**: Configurable conduct rating system
+- **Academic Performance Levels**: Student performance classification
+
+## API Endpoints
+
+### Authentication (`/api/auth`)
+- `POST /login` - User login with CAPTCHA support
+- `POST /external-login` - OAuth login (Google/Microsoft)
+- `POST /forgot-password` - Request password reset email
+- `POST /reset-password` - Reset password with token
+- `POST /complete-account-setup` - Complete new account setup
+- `POST /change-own-password` - Change own password (authenticated users)
+- `GET /captcha` - Generate CAPTCHA challenge
+
+### User Management (`/api/usermanagement`) - Admin Only
+- `GET /users` - Get all users
+- `GET /users/{id}` - Get user by ID
+- `POST /users` - Create new user (sends setup email)
+- `PUT /users/{id}` - Update user information
+- `DELETE /users/{id}` - Schedule user deletion (30-day soft delete)
+- `POST /users/{id}/cancel-deletion` - Cancel scheduled deletion
+- `POST /users/{id}/toggle-lockout` - Lock/unlock user account
+- `GET /roles` - Get all roles with user counts
+- `PUT /users/{id}/roles` - Update user roles
+
+### Student Management (`/api/student`)
+- Standard CRUD operations for student records
+- Student search and filtering
+- Class enrollment management
+
+### Teacher Management (`/api/teacher`)
+- Teacher profile management
+- Department assignment
+- Teaching history
+
+### Class Management (`/api/class`)
+- Class CRUD operations
+- Student enrollment
+- Homeroom teacher assignment
+- Class results and statistics
+
+### Grade Management (`/api/grade`)
+- Grade entry and modification
+- Grade type configuration
+- Student grade history
+
+### Academic Performance (`/api/academicperformance`)
+- Performance level management
+- Student performance tracking
+- Performance statistics
+
+### Conduct Management (`/api/conduct`)
+- Conduct definition management
+- Student conduct grading
+- Conduct history
+
+### Teaching Assignment (`/api/teachingassignment`)
+- Assign teachers to classes and subjects
+- View teaching schedules
+- Department head management
+
+### Subject & Department (`/api/subject`, `/api/department`)
+- Subject CRUD operations
+- Department management
+- Subject-department associations
+
+### School Organization (`/api/schoolyear`, `/api/semester`, `/api/gradelevel`)
+- School year management
+- Semester configuration
+- Grade level definitions
+
+### System Features
+- `/api/backup` - Database backup management (Admin)
+- `/api/systemsettings` - System configuration including logo settings (Admin)
+- `/api/principaldashboard` - Dashboard statistics (Principal)
+- `/api/facerecognition` - Face enrollment and recognition
+- `/api/auditlog` - Audit log viewing (Admin)
+
+### Reference Data
+- `/api/ethnicity` - Ethnicity management
+- `/api/religion` - Religion management
+- `/api/occupation` - Occupation management
+- `/api/gradetype` - Grade type management
 
 ## Project Structure
 
@@ -143,6 +264,7 @@ API/
 ├── Middleware/      # Custom middleware components
 ├── Helpers/         # Utility and helper classes
 ├── Migrations/      # Entity Framework migrations
+├── Backups/         # Database backup storage
 └── Program.cs       # Application entry point
 ```
 

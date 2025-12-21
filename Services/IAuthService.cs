@@ -9,4 +9,5 @@ public interface IAuthService
     string GetExternalLoginUrl(string provider, string redirectUri);
     Task<bool> ForgotPasswordAsync(ForgotPasswordDto request, string resetUrl);
     Task<bool> ResetPasswordAsync(ResetPasswordDto request);
+    Task<bool> ChangeOwnPasswordAsync(string userId, ChangeOwnPasswordDto request);
 }

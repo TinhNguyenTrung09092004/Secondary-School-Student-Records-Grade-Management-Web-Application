@@ -210,4 +210,17 @@ public class AuthService : IAuthService
         var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
         return result.Succeeded;
     }
+
+    public async Task<bool> ChangeOwnPasswordAsync(string userId, ChangeOwnPasswordDto request)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null || user.IsDeleted)
+        {
+            return false;
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        return result.Succeeded;
+    }
 }

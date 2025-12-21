@@ -15,6 +15,7 @@ C:\Users\tinh8\Documents\Project\API
 +---Controllers
 |       AcademicPerformanceController.cs
 |       AcademicRankingController.cs
+|       AuditLogController.cs
 |       AuthController.cs
 |       BackupController.cs
 |       ClassAssignmentController.cs
@@ -36,6 +37,7 @@ C:\Users\tinh8\Documents\Project\API
 |       StudentController.cs
 |       StudentSubjectResultController.cs
 |       SubjectController.cs
+|       SystemSettingsController.cs
 |       TeacherController.cs
 |       TeachingAssignmentController.cs
 |       UserManagementController.cs
@@ -46,6 +48,7 @@ C:\Users\tinh8\Documents\Project\API
 |
 +---DTOs
 |       AcademicPerformanceDtos.cs
+|       AuditLogDtos.cs
 |       BackupDto.cs
 |       ClassAssignmentDtos.cs
 |       ClassDtos.cs
@@ -82,13 +85,14 @@ C:\Users\tinh8\Documents\Project\API
 |       ExceptionHandlingMiddleware.cs
 |
 +---Migrations
-|       20251220064317_UpdateStudentSubjectResultTable.cs
-|       20251220064317_UpdateStudentSubjectResultTable.Designer.cs
+|       20251221104136_AddSystemSettingsTable.cs
+|       20251221104136_AddSystemSettingsTable.Designer.cs
 |       ApplicationDbContextModelSnapshot.cs
 |
 +---Models
 |       AcademicPerformance.cs
 |       ApplicationUser.cs
+|       AuditLog.cs
 |       AuthModels.cs
 |       BackupSchedule.cs
 |       Class.cs
@@ -112,6 +116,7 @@ C:\Users\tinh8\Documents\Project\API
 |       StudentSubjectResult.cs
 |       StudentYearResult.cs
 |       Subject.cs
+|       SystemSetting.cs
 |       Teacher.cs
 |       TeachingAssignment.cs
 |
@@ -121,6 +126,7 @@ C:\Users\tinh8\Documents\Project\API
 |
 +---Repositories
 |       AcademicPerformanceRepository.cs
+|       AuditLogRepository.cs
 |       BackupScheduleRepository.cs
 |       ClassAssignmentRepository.cs
 |       ClassRepository.cs
@@ -133,6 +139,7 @@ C:\Users\tinh8\Documents\Project\API
 |       GradeRepository.cs
 |       GradeTypeRepository.cs
 |       IAcademicPerformanceRepository.cs
+|       IAuditLogRepository.cs
 |       IBackupScheduleRepository.cs
 |       IClassAssignmentRepository.cs
 |       IClassRepository.cs
@@ -177,9 +184,11 @@ C:\Users\tinh8\Documents\Project\API
         AcademicPerformanceService.cs
         AcademicRankingService.cs
         AccountCleanupService.cs
+        AuditService.cs
         AuthService.cs
         BackupSchedulerService.cs
         BackupService.cs
+        CaptchaService.cs
         ClassAssignmentService.cs
         ClassService.cs
         ConductGradingService.cs
@@ -192,8 +201,10 @@ C:\Users\tinh8\Documents\Project\API
         GradeService.cs
         IAcademicPerformanceService.cs
         IAcademicRankingService.cs
+        IAuditService.cs
         IAuthService.cs
         IBackupService.cs
+        ICaptchaService.cs
         IClassAssignmentService.cs
         IClassService.cs
         IConductGradingService.cs
@@ -221,52 +232,6 @@ C:\Users\tinh8\Documents\Project\API
         SchoolYearService.cs
         SemesterService.cs
         StudentService.cs
-        IStudentService.cs
-        IStudentSubjectResultService.cs
-        ISubjectService.cs
-        ITeacherService.cs
-        ITeachingAssignmentService.cs
-        IUserManagementService.cs
-        OccupationService.cs
-        ReligionService.cs
-        ResultService.cs
-        SchoolYearService.cs
-        SemesterService.cs
-        StudentService.cs
-        ISubjectService.cs
-        ITeacherService.cs
-        ITeachingAssignmentService.cs
-        IUserManagementService.cs
-        OccupationService.cs
-        ReligionService.cs
-        ResultService.cs
-        SchoolYearService.cs
-        SemesterService.cs
-        StudentService.cs
-        IUserManagementService.cs
-        OccupationService.cs
-        ReligionService.cs
-        ResultService.cs
-        SchoolYearService.cs
-        SemesterService.cs
-        StudentService.cs
-        ReligionService.cs
-        ResultService.cs
-        SchoolYearService.cs
-        SemesterService.cs
-        StudentService.cs
-        ResultService.cs
-        SchoolYearService.cs
-        SemesterService.cs
-        StudentService.cs
-        SchoolYearService.cs
-        SemesterService.cs
-        StudentService.cs
-        SemesterService.cs
-        StudentService.cs
-        StudentSubjectResultService.cs
-        StudentService.cs
-        StudentSubjectResultService.cs
         StudentSubjectResultService.cs
         SubjectService.cs
         TeacherService.cs

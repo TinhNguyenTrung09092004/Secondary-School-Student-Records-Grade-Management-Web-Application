@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using API.DTOs;
 using API.Services;
+using System.Security.Claims;
 
 namespace API.Controllers;
 
@@ -17,6 +19,11 @@ public class AuthController : ControllerBase
         _authService = authService;
         _userManagementService = userManagementService;
         _captchaService = captchaService;
+    }
+
+    private string? GetCurrentUserId()
+    {
+        return User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
     }
 
     [HttpPost("login")]
@@ -133,6 +140,33 @@ public class AuthController : ControllerBase
             }
 
             return Ok(new { message = "Tài khoản đã được thiết lập thành công. Bạn có thể đăng nhập ngay bây giờ." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Có lỗi xảy ra" });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("change-own-password")]
+    public async Task<IActionResult> ChangeOwnPassword([FromBody] ChangeOwnPasswordDto request)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { message = "Người dùng chưa đăng nhập" });
+            }
+
+            var result = await _authService.ChangeOwnPasswordAsync(userId, request);
+
+            if (!result)
+            {
+                return BadRequest(new { message = "Mật khẩu hiện tại không đúng hoặc không thể thay đổi mật khẩu" });
+            }
+
+            return Ok(new { message = "Mật khẩu đã được thay đổi thành công" });
         }
         catch (Exception ex)
         {
