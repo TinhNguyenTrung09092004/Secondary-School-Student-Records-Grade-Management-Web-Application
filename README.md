@@ -98,7 +98,7 @@ dotnet run --configuration Release
 
 When running in development mode, you can access the Swagger UI documentation at:
 ```
-https://localhost:5244/swagger
+http://localhost:5244/swagger
 ```
 
 This provides interactive API documentation where you can test all endpoints.
